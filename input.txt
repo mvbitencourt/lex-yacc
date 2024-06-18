@@ -1,4 +1,4 @@
-begin
-hello
-thanks
-end
+BLOCO _principal_
+NUMERO a = 10;
+PRINT a;
+FIM _principal_

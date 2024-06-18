@@ -1,7 +1,7 @@
 #define YY_parse_h_included
 /*#define YY_USE_CLASS 
 */
-/*  A Bison++ parser, made from exemplo3.y  */
+/*  A Bison++ parser, made from teste.y  */
 
  /* with Bison++ version bison++ Version 1.21.9-1, adapted from GNU bison by coetmeur@icdc.fr
 Maintained by Magnus Ekdahl <magnus@debian.org>
@@ -98,11 +98,48 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
 #define YYBISON 1  
 
  #line 88 "/usr/share/bison++/bison.cc"
-#line 1 "exemplo3.y"
+#line 1 "teste.y"
 
-int yylex(void);
-void yyerror(char* s);
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+void yyerror(const char *s);
+int yylex(void);
+
+typedef struct Scope {
+    struct Scope *next;
+} Scope;
+
+Scope *scope_stack = NULL;
+
+void push_scope() {
+    Scope *new_scope = (Scope *)malloc(sizeof(Scope));
+    new_scope->next = scope_stack;
+    scope_stack = new_scope;
+    printf("Escopo criado\n");
+}
+
+void pop_scope() {
+    if (scope_stack != NULL) {
+        Scope *old_scope = scope_stack;
+        scope_stack = scope_stack->next;
+        free(old_scope);
+        printf("Escopo removido\n");
+    } else {
+        printf("Erro: Tentativa de remover escopo inexistente\n");
+    }
+}
+
+#line 34 "teste.y"
+typedef union {
+    int ival;
+    char *sval;
+} yy_parse_stype;
+#define YY_parse_STYPE yy_parse_stype
+#ifndef YY_USE_CLASS
+#define YYSTYPE yy_parse_stype
+#endif
 
 #line 88 "/usr/share/bison++/bison.cc"
 /* %{ and %header{ and %union, during decl */
@@ -157,12 +194,6 @@ void yyerror(char* s);
 /* section apres lecture def, avant lecture grammaire S2 */
 
  #line 134 "/usr/share/bison++/bison.cc"
-#ifndef YY_USE_CLASS
-# ifndef YYSTYPE
-#  define YYSTYPE int
-#  define YYSTYPE_IS_TRIVIAL 1
-# endif
-#endif
 
 #line 134 "/usr/share/bison++/bison.cc"
 /* prefix */
@@ -304,8 +335,14 @@ typedef
 /* TOKEN C */
 
  #line 263 "/usr/share/bison++/bison.cc"
-#define	NUMBER	258
-#define	IDENT	259
+#define	BLOCO_INICIO	258
+#define	BLOCO_FIM	259
+#define	IDENTIFICADOR	260
+#define	CADEIA	261
+#define	NUMERO	262
+#define	TIPO_NUMERO	263
+#define	TIPO_CADEIA	264
+#define	PRINT	265
 
 
 #line 263 "/usr/share/bison++/bison.cc"
@@ -355,8 +392,14 @@ public:
 /* static const int token ... */
 
  #line 307 "/usr/share/bison++/bison.cc"
-static const int NUMBER;
-static const int IDENT;
+static const int BLOCO_INICIO;
+static const int BLOCO_FIM;
+static const int IDENTIFICADOR;
+static const int CADEIA;
+static const int NUMERO;
+static const int TIPO_NUMERO;
+static const int TIPO_CADEIA;
+static const int PRINT;
 
 
 #line 307 "/usr/share/bison++/bison.cc"
@@ -365,8 +408,14 @@ static const int IDENT;
 enum YY_parse_ENUM_TOKEN { YY_parse_NULL_TOKEN=0
 
  #line 310 "/usr/share/bison++/bison.cc"
-	,NUMBER=258
-	,IDENT=259
+	,BLOCO_INICIO=258
+	,BLOCO_FIM=259
+	,IDENTIFICADOR=260
+	,CADEIA=261
+	,NUMERO=262
+	,TIPO_NUMERO=263
+	,TIPO_CADEIA=264
+	,PRINT=265
 
 
 #line 310 "/usr/share/bison++/bison.cc"
@@ -403,8 +452,14 @@ public:
 #if YY_parse_USE_CONST_TOKEN != 0
 
  #line 341 "/usr/share/bison++/bison.cc"
-const int YY_parse_CLASS::NUMBER=258;
-const int YY_parse_CLASS::IDENT=259;
+const int YY_parse_CLASS::BLOCO_INICIO=258;
+const int YY_parse_CLASS::BLOCO_FIM=259;
+const int YY_parse_CLASS::IDENTIFICADOR=260;
+const int YY_parse_CLASS::CADEIA=261;
+const int YY_parse_CLASS::NUMERO=262;
+const int YY_parse_CLASS::TIPO_NUMERO=263;
+const int YY_parse_CLASS::TIPO_CADEIA=264;
+const int YY_parse_CLASS::PRINT=265;
 
 
 #line 341 "/usr/share/bison++/bison.cc"
@@ -423,17 +478,20 @@ YY_parse_CONSTRUCTOR_CODE;
  #line 352 "/usr/share/bison++/bison.cc"
 
 
-#define	YYFINAL		6
+#define	YYFINAL		16
 #define	YYFLAG		-32768
-#define	YYNTBASE	5
+#define	YYNTBASE	15
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 259 ? yytranslate[x] : 7)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 265 ? yytranslate[x] : 17)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+     2,     2,    14,    13,     2,     2,     2,     2,     2,     2,
+     2,     2,     2,     2,     2,     2,     2,     2,    12,     2,
+    11,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -452,51 +510,58 @@ static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     1,     2,     3,     4
+     2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
+     6,     7,     8,     9,    10
 };
 
 #if YY_parse_DEBUG != 0
 static const short yyprhs[] = {     0,
-     0,     1,     4,     6
+     0,     3,     4,     6,     8,    10,    12,    14,    16,    18,
+    20,    22,    24,    26
 };
 
-static const short yyrhs[] = {    -1,
-     5,     6,     0,     3,     0,     4,     0
+static const short yyrhs[] = {    15,
+    16,     0,     0,     3,     0,     4,     0,     8,     0,     9,
+     0,    10,     0,     5,     0,     7,     0,     6,     0,    11,
+     0,    12,     0,    13,     0,    14,     0
 };
 
 #endif
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-    10,    11,    13,    14
+    45,    47,    50,    52,    53,    54,    55,    56,    57,    58,
+    59,    60,    61,    62
 };
 
-static const char * const yytname[] = {   "$","error","$illegal.","NUMBER","IDENT",
-"list","any",""
+static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
+"BLOCO_FIM","IDENTIFICADOR","CADEIA","NUMERO","TIPO_NUMERO","TIPO_CADEIA","PRINT",
+"'='","';'","','","'+'","program","statement",""
 };
 #endif
 
 static const short yyr1[] = {     0,
-     5,     5,     6,     6
+    15,    15,    16,    16,    16,    16,    16,    16,    16,    16,
+    16,    16,    16,    16
 };
 
 static const short yyr2[] = {     0,
-     0,     2,     1,     1
+     2,     0,     1,     1,     1,     1,     1,     1,     1,     1,
+     1,     1,     1,     1
 };
 
-static const short yydefact[] = {     1,
-     0,     3,     4,     2,     0,     0
+static const short yydefact[] = {     2,
+     0,     3,     4,     8,    10,     9,     5,     6,     7,    11,
+    12,    13,    14,     1,     0,     0
 };
 
 static const short yydefgoto[] = {     1,
-     4
+    14
 };
 
 static const short yypact[] = {-32768,
-     0,-32768,-32768,-32768,     1,-32768
+     0,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,
+-32768,-32768,-32768,-32768,     1,-32768
 };
 
 static const short yypgoto[] = {-32768,
@@ -504,15 +569,17 @@ static const short yypgoto[] = {-32768,
 };
 
 
-#define	YYLAST		4
+#define	YYLAST		14
 
 
-static const short yytable[] = {     5,
-     6,     0,     2,     3
+static const short yytable[] = {    15,
+    16,     0,     2,     3,     4,     5,     6,     7,     8,     9,
+    10,    11,    12,    13
 };
 
 static const short yycheck[] = {     0,
-     0,    -1,     3,     4
+     0,    -1,     3,     4,     5,     6,     7,     8,     9,    10,
+    11,    12,    13,    14
 };
 
 #line 352 "/usr/share/bison++/bison.cc"
@@ -1008,21 +1075,53 @@ YYLABEL(yyreduce)
 
   switch (yyn) {
 
-case 1:
-#line 10 "exemplo3.y"
-{printf("R1");;
-    break;}
-case 2:
-#line 11 "exemplo3.y"
-{printf("R2");;
-    break;}
 case 3:
-#line 13 "exemplo3.y"
-{printf("R3");;
+#line 51 "teste.y"
+{ printf("Token: BLOCO_INICIO\n"); ;
     break;}
 case 4:
-#line 14 "exemplo3.y"
-{printf("R4");;
+#line 52 "teste.y"
+{ printf("Token: BLOCO_FIM\n"); ;
+    break;}
+case 5:
+#line 53 "teste.y"
+{ printf("Token: TIPO_NUMERO\n"); ;
+    break;}
+case 6:
+#line 54 "teste.y"
+{ printf("Token: TIPO_CADEIA\n"); ;
+    break;}
+case 7:
+#line 55 "teste.y"
+{ printf("Token: PRINT\n"); ;
+    break;}
+case 8:
+#line 56 "teste.y"
+{ printf("Token: IDENTIFICADOR (%s)\n", yyvsp[0].sval); free(yyvsp[0].sval); ;
+    break;}
+case 9:
+#line 57 "teste.y"
+{ printf("Token: NUMERO (%d)\n", yyvsp[0].ival); ;
+    break;}
+case 10:
+#line 58 "teste.y"
+{ printf("Token: CADEIA (%s)\n", yyvsp[0].sval); free(yyvsp[0].sval); ;
+    break;}
+case 11:
+#line 59 "teste.y"
+{ printf("Token: =\n"); ;
+    break;}
+case 12:
+#line 60 "teste.y"
+{ printf("Token: ;\n"); ;
+    break;}
+case 13:
+#line 61 "teste.y"
+{ printf("Token: ,\n"); ;
+    break;}
+case 14:
+#line 62 "teste.y"
+{ printf("Token: +\n"); ;
     break;}
 }
 
@@ -1228,19 +1327,13 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 16 "exemplo3.y"
+#line 65 "teste.y"
 
 
-
-extern FILE *yyin;
-int main() {
-	do { 
-		yyparse(); 
-	} while (!feof(yyin));
+void yyerror(const char *s) {
+    fprintf(stderr, "Erro: %s\n", s);
 }
 
-void yyerror(char *s) {
-   fprintf(stderr, "%s\n", s);
+int main(void) {
+    return yyparse();
 }
-
-

@@ -13,6 +13,16 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
+#line 34 "teste.y"
+typedef union {
+    int ival;
+    char *sval;
+} yy_parse_stype;
+#define YY_parse_STYPE yy_parse_stype
+#ifndef YY_USE_CLASS
+#define YYSTYPE yy_parse_stype
+#endif
+
 #line 21 "/usr/share/bison++/bison.h"
  /* %{ and %header{ and %union, during decl */
 #ifndef YY_parse_COMPATIBILITY
@@ -67,12 +77,6 @@
 
 
  #line 68 "/usr/share/bison++/bison.h"
-#ifndef YY_USE_CLASS
-# ifndef YYSTYPE
-#  define YYSTYPE int
-#  define YYSTYPE_IS_TRIVIAL 1
-# endif
-#endif
 
 #line 68 "/usr/share/bison++/bison.h"
 /* prefix */
@@ -186,8 +190,14 @@ typedef
 
 
  #line 169 "/usr/share/bison++/bison.h"
-#define	NUMBER	258
-#define	IDENT	259
+#define	BLOCO_INICIO	258
+#define	BLOCO_FIM	259
+#define	IDENTIFICADOR	260
+#define	CADEIA	261
+#define	NUMERO	262
+#define	TIPO_NUMERO	263
+#define	TIPO_CADEIA	264
+#define	PRINT	265
 
 
 #line 169 "/usr/share/bison++/bison.h"
@@ -236,8 +246,14 @@ public:
   /* static const int token ... */
   
  #line 212 "/usr/share/bison++/bison.h"
-static const int NUMBER;
-static const int IDENT;
+static const int BLOCO_INICIO;
+static const int BLOCO_FIM;
+static const int IDENTIFICADOR;
+static const int CADEIA;
+static const int NUMERO;
+static const int TIPO_NUMERO;
+static const int TIPO_CADEIA;
+static const int PRINT;
 
 
 #line 212 "/usr/share/bison++/bison.h"
@@ -246,8 +262,14 @@ static const int IDENT;
   enum YY_parse_ENUM_TOKEN { YY_parse_NULL_TOKEN=0
   
  #line 215 "/usr/share/bison++/bison.h"
-	,NUMBER=258
-	,IDENT=259
+	,BLOCO_INICIO=258
+	,BLOCO_FIM=259
+	,IDENTIFICADOR=260
+	,CADEIA=261
+	,NUMERO=262
+	,TIPO_NUMERO=263
+	,TIPO_CADEIA=264
+	,PRINT=265
 
 
 #line 215 "/usr/share/bison++/bison.h"
