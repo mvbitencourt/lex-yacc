@@ -91,6 +91,7 @@ linha_declaracao:
         | numero_expr '+' NUMERO
         ;
 
+// implementar soma nas atribuicoes
 linha_atribuicao:
     IDENTIFICADOR '=' NUMERO ';'          {printf("linha_atribuicao\n");}
     | IDENTIFICADOR '=' CADEIA ';'        {printf("linha_atribuicao\n");}
