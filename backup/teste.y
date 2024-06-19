@@ -6,29 +6,50 @@
 void yyerror(const char *s);
 int yylex(void);
 
-typedef struct Scope {
-    struct Scope *next;
-} Scope;
+typedef struct Escopo {
+    struct Escopo *proximo;
+} Escopo;
 
-Scope *scope_stack = NULL;
+Escopo *pilha_de_escopos = NULL;
 
-void push_scope() {
-    Scope *new_scope = (Scope *)malloc(sizeof(Scope));
-    new_scope->next = scope_stack;
-    scope_stack = new_scope;
+void empilhar_escopo() {
+    Escopo *novo_escopo = (Escopo *)malloc(sizeof(Escopo));
+    novo_escopo->proximo = pilha_de_escopos;
+    pilha_de_escopos = novo_escopo;
     printf("Escopo criado\n");
 }
 
-void pop_scope() {
-    if (scope_stack != NULL) {
-        Scope *old_scope = scope_stack;
-        scope_stack = scope_stack->next;
-        free(old_scope);
+void desempilhar_escopo() {
+    if (pilha_de_escopos != NULL) {
+        Escopo *escopo_antigo = pilha_de_escopos;
+        pilha_de_escopos = pilha_de_escopos->proximo;
+        free(escopo_antigo);
         printf("Escopo removido\n");
     } else {
         printf("Erro: Tentativa de remover escopo inexistente\n");
     }
 }
+
+void inicializar_pilha_de_escopos() {
+    pilha_de_escopos = NULL;
+    printf("Pilha de escopos inicializada\n");
+}
+
+void imprimir_pilha() {
+    printf("Pilha = [");
+    Escopo *atual = pilha_de_escopos;
+    while (atual != NULL) {
+        printf("[]");
+        if (atual->proximo != NULL) {
+            printf(", ");
+        }
+        atual = atual->proximo;
+    }
+    printf("]\n");
+}
+
+int linha_indice = 0; // Declaração da variável de contagem de linhas
+
 %}
 
 %union {
@@ -42,69 +63,71 @@ void pop_scope() {
 
 %%
 
-inicio:
-    inicio programa
-    | /* vazio */
-    ;
-
 programa:
-    bloco
-    | /* vazio */
-    ;
-
-bloco:
-    BLOCO_INICIO escopo BLOCO_FIM
-    ;
-
-escopo: 
-    escopo linha
-    | escopo bloco
+    programa linha {linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();}
     | /* vazio */
     ;
 
 linha:
-    linha_declaracao   
-    | linha_atribuicao 
-    | linha_print      
+    linha_inicio_bloco
+    | linha_fim_bloco
+    | linha_declaracao
+    | linha_atribuicao
+    | linha_print
     | /* vazio */
+    ;
+
+linha_inicio_bloco:
+    BLOCO_INICIO {printf("linha_inicio_bloco --- "); empilhar_escopo();}
+    ;
+
+linha_fim_bloco:
+    BLOCO_FIM {printf("linha_fim_bloco --- "); desempilhar_escopo();}
     ;
 
 linha_declaracao:
-    TIPO_NUMERO IDENTIFICADOR ';'              {printf("linha_declaracao");}
-    | TIPO_NUMERO IDENTIFICADOR '=' NUMERO ';' {printf("linha_declaracao");}
-    | TIPO_CADEIA IDENTIFICADOR '=' CADEIA ';' {printf("linha_declaracao");}
+    TIPO_NUMERO IDENTIFICADOR ';' { printf("linha_declaracao\n"); }
+    | TIPO_CADEIA lista_declaracao_cadeia ';' { printf("linha_declaracao\n"); }
+    | TIPO_NUMERO lista_declaracao_numero ';' { printf("linha_declaracao\n"); }
     ;
+    lista_declaracao_cadeia:
+        declaracao_cadeia
+        | lista_declaracao_cadeia ',' declaracao_cadeia
+        ;
+    declaracao_cadeia:
+        IDENTIFICADOR '=' CADEIA
+        | IDENTIFICADOR
+        ;
+    lista_declaracao_numero:
+        declaracao_numero
+        | lista_declaracao_numero ',' declaracao_numero
+        ;
+    declaracao_numero:
+        IDENTIFICADOR '=' expressao_numero
+        | IDENTIFICADOR
+        ;
+    expressao_numero:
+        NUMERO
+        | IDENTIFICADOR
+        | expressao_numero '+' NUMERO
+        | expressao_numero '+' IDENTIFICADOR
+        ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' NUMERO ';'          {printf("linha_atribuicao");}
-    | IDENTIFICADOR '=' CADEIA ';'        {printf("linha_atribuicao");}
-    | IDENTIFICADOR '=' IDENTIFICADOR ';' {printf("linha_atribuicao");}
+    IDENTIFICADOR '=' lista_expressao ';' { printf("linha_atribuicao\n"); }
+    | IDENTIFICADOR '=' CADEIA ';' { printf("linha_atribuicao\n"); }
     ;
+    lista_expressao:
+        expressao
+        | lista_expressao '+' expressao
+        ;
+    expressao:
+        NUMERO
+        | IDENTIFICADOR
+        ;
 
 linha_print:
-    PRINT IDENTIFICADOR {printf("linha_print");}
-    ;
-
-=============================================================================
-
-program:
-    program statement
-    | /* vazio */
-    ;
-
-statement:
-    BLOCO_INICIO { printf("Token: BLOCO_INICIO\n"); }
-    | BLOCO_FIM { printf("Token: BLOCO_FIM\n"); }
-    | TIPO_NUMERO { printf("Token: TIPO_NUMERO\n"); }
-    | TIPO_CADEIA { printf("Token: TIPO_CADEIA\n"); }
-    | PRINT { printf("Token: PRINT\n"); }
-    | IDENTIFICADOR { printf("Token: IDENTIFICADOR (%s)\n", $1); free($1); }
-    | NUMERO { printf("Token: NUMERO (%d)\n", $1); }
-    | CADEIA { printf("Token: CADEIA (%s)\n", $1); free($1); }
-    | '=' { printf("Token: =\n"); }
-    | ';' { printf("Token: ;\n"); }
-    | ',' { printf("Token: ,\n"); }
-    | '+' { printf("Token: +\n"); }
+    PRINT IDENTIFICADOR ';' { printf("linha_print\n"); }
     ;
 
 %%
@@ -114,5 +137,6 @@ void yyerror(const char *s) {
 }
 
 int main(void) {
+    inicializar_pilha_de_escopos();
     return yyparse();
 }
