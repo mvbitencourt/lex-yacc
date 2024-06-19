@@ -88,15 +88,24 @@ linha_declaracao:
         ;
     numero_expr:
         NUMERO
+        | IDENTIFICADOR
         | numero_expr '+' NUMERO
+        | numero_expr '+' IDENTIFICADOR
         ;
 
-// implementar soma nas atribuicoes
 linha_atribuicao:
-    IDENTIFICADOR '=' NUMERO ';'          {printf("linha_atribuicao\n");}
-    | IDENTIFICADOR '=' CADEIA ';'        {printf("linha_atribuicao\n");}
-    | IDENTIFICADOR '=' IDENTIFICADOR ';' {printf("linha_atribuicao\n");}
+    IDENTIFICADOR '=' expr_list ';' {printf("linha_atribuicao\n");}
+    | IDENTIFICADOR '=' CADEIA ';'  {printf("linha_atribuicao\n");}
     ;
+    expr_list:
+        expr
+        | expr_list '+' expr
+        ;
+
+    expr:
+        NUMERO
+        | IDENTIFICADOR
+        ;
 
 linha_print:
     PRINT IDENTIFICADOR ';' {printf("linha_print\n");}

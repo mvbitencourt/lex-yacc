@@ -23,6 +23,6 @@ BLOCO _principal_
 			PRINT a;
 			PRINT c;
 			NUMERO d = c+10;
-			print d;
+			PRINT d;
 		FIM _n2_ 
 	FIM _n1_
