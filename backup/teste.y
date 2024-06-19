@@ -85,6 +85,28 @@ linha_print:
     PRINT IDENTIFICADOR {printf("linha_print");}
     ;
 
+=============================================================================
+
+program:
+    program statement
+    | /* vazio */
+    ;
+
+statement:
+    BLOCO_INICIO { printf("Token: BLOCO_INICIO\n"); }
+    | BLOCO_FIM { printf("Token: BLOCO_FIM\n"); }
+    | TIPO_NUMERO { printf("Token: TIPO_NUMERO\n"); }
+    | TIPO_CADEIA { printf("Token: TIPO_CADEIA\n"); }
+    | PRINT { printf("Token: PRINT\n"); }
+    | IDENTIFICADOR { printf("Token: IDENTIFICADOR (%s)\n", $1); free($1); }
+    | NUMERO { printf("Token: NUMERO (%d)\n", $1); }
+    | CADEIA { printf("Token: CADEIA (%s)\n", $1); free($1); }
+    | '=' { printf("Token: =\n"); }
+    | ';' { printf("Token: ;\n"); }
+    | ',' { printf("Token: ,\n"); }
+    | '+' { printf("Token: +\n"); }
+    ;
+
 %%
 
 void yyerror(const char *s) {

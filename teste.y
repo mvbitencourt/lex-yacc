@@ -42,24 +42,63 @@ void pop_scope() {
 
 %%
 
-program:
-    program statement
+programa:
+    programa linha
     | /* vazio */
     ;
 
-statement:
-    BLOCO_INICIO { printf("Token: BLOCO_INICIO\n"); }
-    | BLOCO_FIM { printf("Token: BLOCO_FIM\n"); }
-    | TIPO_NUMERO { printf("Token: TIPO_NUMERO\n"); }
-    | TIPO_CADEIA { printf("Token: TIPO_CADEIA\n"); }
-    | PRINT { printf("Token: PRINT\n"); }
-    | IDENTIFICADOR { printf("Token: IDENTIFICADOR (%s)\n", $1); free($1); }
-    | NUMERO { printf("Token: NUMERO (%d)\n", $1); }
-    | CADEIA { printf("Token: CADEIA (%s)\n", $1); free($1); }
-    | '=' { printf("Token: =\n"); }
-    | ';' { printf("Token: ;\n"); }
-    | ',' { printf("Token: ,\n"); }
-    | '+' { printf("Token: +\n"); }
+linha:
+    | linha_inicio_bloco
+    | linha_fim_bloco
+    | linha_declaracao
+    | linha_atribuicao
+    | linha_print
+    | /* vazio */
+    ;
+
+linha_inicio_bloco:
+    BLOCO_INICIO {printf("linha_inicio_bloco\n");}
+    ;
+
+linha_fim_bloco:
+    BLOCO_FIM {printf("linha_fim_bloco\n");}
+    ;
+
+linha_declaracao:
+    TIPO_NUMERO IDENTIFICADOR ';' {printf("linha_declaracao\n");}
+    | TIPO_CADEIA decl_cadeia_list ';' {printf("linha_declaracao\n");}
+    | TIPO_NUMERO decl_numero_list ';' {printf("linha_declaracao\n");}    
+    ;
+    decl_cadeia_list:
+        decl_cadeia
+        | decl_cadeia_list ',' decl_cadeia
+        ;
+
+    decl_cadeia:
+        IDENTIFICADOR '=' CADEIA
+        | IDENTIFICADOR
+        ;
+    decl_numero_list:
+        decl_numero
+        | decl_numero_list ',' decl_numero
+        ;
+    decl_numero:
+        IDENTIFICADOR '=' numero_expr
+        | IDENTIFICADOR
+        ;
+    numero_expr:
+        NUMERO
+        | numero_expr '+' NUMERO
+        ;
+
+linha_atribuicao:
+    IDENTIFICADOR '=' NUMERO ';'          {printf("linha_atribuicao\n");}
+    | IDENTIFICADOR '=' CADEIA ';'        {printf("linha_atribuicao\n");}
+    | IDENTIFICADOR '=' IDENTIFICADOR ';' {printf("linha_atribuicao\n");}
+    ;
+
+linha_print:
+    PRINT IDENTIFICADOR ';' {printf("linha_print\n");}
     ;
 
 %%
