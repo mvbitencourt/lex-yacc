@@ -103,7 +103,9 @@ linha_declaracao:
         | lista_declaracao_numero ',' declaracao_numero
         ;
     declaracao_numero:
-        IDENTIFICADOR '=' expressao_numero
+        IDENTIFICADOR '=' expressao_numero{
+            printf
+        }
         | IDENTIFICADOR
         ;
     expressao_numero:

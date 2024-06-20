@@ -206,9 +206,13 @@ void imprimir_pilha() {
 }
 
 int linha_indice = 0; // Declaração da variável de contagem de linhas
+int tipo_var = 0;
+char* nome_var;
+int valor_var_num = 0;
+char* valor_var_cad;
 
 
-#line 111 "teste.y"
+#line 115 "teste.y"
 typedef union {
     int ival;
     char *sval;
@@ -615,10 +619,10 @@ static const short yyrhs[] = {    15,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   122,   124,   127,   129,   130,   131,   132,   133,   136,   140,
-   144,   146,   147,   149,   151,   153,   155,   157,   159,   161,
-   163,   165,   167,   168,   169,   172,   174,   176,   178,   180,
-   182,   185
+   126,   128,   131,   133,   134,   135,   136,   137,   140,   144,
+   148,   150,   151,   154,   156,   159,   161,   164,   166,   169,
+   171,   174,   176,   177,   178,   181,   183,   186,   188,   191,
+   193,   196
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
@@ -1182,71 +1186,79 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 123 "teste.y"
+#line 127 "teste.y"
 {linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();;
     break;}
 case 9:
-#line 137 "teste.y"
+#line 141 "teste.y"
 {printf("linha_inicio_bloco --- "); empilhar_escopo();;
     break;}
 case 10:
-#line 141 "teste.y"
+#line 145 "teste.y"
 {printf("linha_fim_bloco --- "); desempilhar_escopo();;
     break;}
 case 11:
-#line 145 "teste.y"
+#line 149 "teste.y"
 { printf("linha_declaracao\n"); adicionar_variavel_numero("NUMERO", yyvsp[-1].sval, 0); ;
     break;}
 case 12:
-#line 146 "teste.y"
+#line 150 "teste.y"
 { printf("linha_declaracao\n"); ;
     break;}
 case 13:
-#line 147 "teste.y"
+#line 151 "teste.y"
 { printf("linha_declaracao\n"); ;
     break;}
 case 16:
-#line 154 "teste.y"
+#line 160 "teste.y"
 { adicionar_variavel_cadeia("CADEIA", yyvsp[-2].sval, yyvsp[0].sval); ;
     break;}
 case 17:
-#line 155 "teste.y"
+#line 161 "teste.y"
 { adicionar_variavel_cadeia("CADEIA", yyvsp[0].sval, ""); ;
     break;}
 case 20:
-#line 162 "teste.y"
-{ adicionar_variavel_numero("NUMERO", yyvsp[-2].sval, yyvsp[0]); ;
+#line 170 "teste.y"
+{ nome_var = yyvsp[-2].sval; adicionar_variavel_numero("NUMERO", nome_var, valor_var_num); ;
     break;}
 case 21:
-#line 163 "teste.y"
+#line 171 "teste.y"
 { adicionar_variavel_numero("NUMERO", yyvsp[0].sval, 0); ;
     break;}
 case 22:
-#line 166 "teste.y"
-{ yyval = yyvsp[0].ival; ;
+#line 175 "teste.y"
+{ valor_var_num = yyvsp[0].ival; ;
     break;}
 case 23:
-#line 167 "teste.y"
-{ yyval = 0; ;
+#line 176 "teste.y"
+{ valor_var_num = 0; ;
     break;}
 case 24:
-#line 168 "teste.y"
-{ yyval = yyvsp[-2] + yyvsp[0].ival; ;
+#line 177 "teste.y"
+{ valor_var_num = yyvsp[-2] + yyvsp[0].ival; ;
     break;}
 case 25:
-#line 169 "teste.y"
-{ yyval = yyvsp[-2]; ;
+#line 178 "teste.y"
+{ valor_var_num = yyvsp[-2]; ;
     break;}
 case 26:
-#line 173 "teste.y"
+#line 182 "teste.y"
 { printf("linha_atribuicao\n"); ;
     break;}
 case 27:
-#line 174 "teste.y"
+#line 183 "teste.y"
 { printf("linha_atribuicao\n"); ;
     break;}
+case 30:
+#line 192 "teste.y"
+{ yyval = yyvsp[0].ival; ;
+    break;}
+case 31:
+#line 193 "teste.y"
+{ yyval = 0; ;
+    break;}
 case 32:
-#line 186 "teste.y"
+#line 197 "teste.y"
 { printf("linha_print\n"); ;
     break;}
 }
@@ -1453,7 +1465,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 189 "teste.y"
+#line 200 "teste.y"
 
 
 void yyerror(const char *s) {

@@ -105,10 +105,10 @@ void imprimir_pilha() {
 }
 
 int linha_indice = 0; // Declaração da variável de contagem de linhas
-int tipo_var = NULL;
-char* nome_var
-int valor_var_num
-char* valor_var_cad
+int tipo_var = 0;
+char* nome_var;
+int valor_var_num = 0;
+char* valor_var_cad;
 
 %}
 
@@ -138,56 +138,104 @@ linha:
     ;
 
 linha_inicio_bloco:
-    BLOCO_INICIO {printf("linha_inicio_bloco --- "); empilhar_escopo();}
+    BLOCO_INICIO {
+        printf("linha_inicio_bloco --- "); 
+        empilhar_escopo();
+        }
     ;
 
 linha_fim_bloco:
-    BLOCO_FIM {printf("linha_fim_bloco --- "); desempilhar_escopo();}
+    BLOCO_FIM {
+        printf("linha_fim_bloco --- "); 
+        desempilhar_escopo();
+        }
     ;
 
 linha_declaracao:
-    TIPO_NUMERO IDENTIFICADOR ';' { printf("linha_declaracao\n"); adicionar_variavel_numero("NUMERO", $2, 0); }
-    | TIPO_CADEIA lista_declaracao_cadeia ';' { printf("linha_declaracao\n"); }
-    | TIPO_NUMERO lista_declaracao_numero ';' { printf("linha_declaracao\n"); }
+    TIPO_NUMERO IDENTIFICADOR ';' { 
+        printf("linha_declaracao\n"); 
+        adicionar_variavel_numero("NUMERO", $2, 0); 
+        }
+    | TIPO_CADEIA lista_declaracao_cadeia ';' { 
+        printf("linha_declaracao\n"); 
+        }
+    | TIPO_NUMERO lista_declaracao_numero ';' { 
+        printf("linha_declaracao\n"); 
+        }
     ;
-    lista_declaracao_cadeia:
-        declaracao_cadeia
-        | lista_declaracao_cadeia ',' declaracao_cadeia
-        ;
-    declaracao_cadeia:
-        IDENTIFICADOR '=' CADEIA { adicionar_variavel_cadeia("CADEIA", $1, $3); }
-        | IDENTIFICADOR { adicionar_variavel_cadeia("CADEIA", $1, ""); }
-        ;
-    lista_declaracao_numero:
-        declaracao_numero
-        | lista_declaracao_numero ',' declaracao_numero
-        ;
-    declaracao_numero:
-        IDENTIFICADOR '=' expressao_numero { adicionar_variavel_numero("NUMERO", $1, $3); }
-        | IDENTIFICADOR { adicionar_variavel_numero("NUMERO", $1, 0); }
-        ;
-    expressao_numero:
-        NUMERO { $$ = $1; }
-        | IDENTIFICADOR { $$ = 0; } // ou algum valor padrão ou conversão adequada
-        | expressao_numero '+' NUMERO { $$ = $1 + $3; }
-        | expressao_numero '+' IDENTIFICADOR { $$ = $1; } // ou algum valor padrão ou conversão adequada
-        ;
+
+lista_declaracao_cadeia:
+    declaracao_cadeia
+    | lista_declaracao_cadeia ',' declaracao_cadeia
+    ;
+
+declaracao_cadeia:
+    IDENTIFICADOR '=' CADEIA { 
+        adicionar_variavel_cadeia("CADEIA", $1, $3); 
+        }
+    | IDENTIFICADOR { 
+        adicionar_variavel_cadeia("CADEIA", $1, ""); 
+        }
+    ;
+
+lista_declaracao_numero:
+    declaracao_numero
+    | lista_declaracao_numero ',' declaracao_numero
+    ;
+
+declaracao_numero:
+    IDENTIFICADOR '=' expressao_numero { 
+        adicionar_variavel_numero("NUMERO", $1, $3); 
+        }
+    | IDENTIFICADOR { 
+        adicionar_variavel_numero("NUMERO", $1, 0); 
+        }
+    ;
+
+expressao_numero:
+    NUMERO { 
+        $$ = $1; 
+        }
+    | IDENTIFICADOR { 
+        $$ = 0; 
+        }
+    | expressao_numero '+' NUMERO { 
+        $$ = $1 + $3; 
+        }
+    /*
+    | expressao_numero '+' IDENTIFICADOR { 
+        Buscar valor de IDENTIFICADOR na pilha
+        }
+    */
+    ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' lista_expressao ';' { printf("linha_atribuicao\n"); }
-    | IDENTIFICADOR '=' CADEIA ';' { printf("linha_atribuicao\n"); }
+    IDENTIFICADOR '=' lista_expressao ';' { 
+        printf("linha_atribuicao\n"); 
+        }
+    | IDENTIFICADOR '=' CADEIA ';' { 
+        printf("linha_atribuicao\n"); 
+        }
     ;
-    lista_expressao:
-        expressao
-        | lista_expressao '+' expressao
-        ;
-    expressao:
-        NUMERO
-        | IDENTIFICADOR
-        ;
+
+lista_expressao:
+    expressao
+    | lista_expressao '+' expressao
+    ;
+
+expressao:
+    NUMERO { 
+        $$ = $1; 
+        }
+    | IDENTIFICADOR { 
+        $$ = 0; 
+        }
+    ;
 
 linha_print:
-    PRINT IDENTIFICADOR ';' { printf("linha_print\n"); }
+    PRINT IDENTIFICADOR ';' { 
+        printf("linha_print\n"); 
+        }
     ;
 
 %%
