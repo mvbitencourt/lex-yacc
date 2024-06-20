@@ -107,21 +107,7 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
 void yyerror(const char *s);
 int yylex(void);
 
-typedef enum { TIPO_NUMERO, TIPO_CADEIA } TipoValor;
-
-typedef struct Variavel {
-    char *tipo;
-    char *nome;
-    TipoValor tipo_valor;
-    union {
-        int num_valor;
-        char *str_valor;
-    } valor;
-    struct Variavel *proximo;
-} Variavel;
-
 typedef struct Escopo {
-    Variavel *variaveis;
     struct Escopo *proximo;
 } Escopo;
 
@@ -129,7 +115,6 @@ Escopo *pilha_de_escopos = NULL;
 
 void empilhar_escopo() {
     Escopo *novo_escopo = (Escopo *)malloc(sizeof(Escopo));
-    novo_escopo->variaveis = NULL;
     novo_escopo->proximo = pilha_de_escopos;
     pilha_de_escopos = novo_escopo;
     printf("Escopo criado\n");
@@ -151,56 +136,15 @@ void inicializar_pilha_de_escopos() {
     printf("Pilha de escopos inicializada\n");
 }
 
-void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
-    if (pilha_de_escopos == NULL) {
-        printf("Erro: Pilha de escopos não inicializada\n");
-        return;
-    }
-    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
-    nova_variavel->tipo = strdup(tipo);
-    nova_variavel->nome = strdup(nome);
-    nova_variavel->tipo_valor = TIPO_NUMERO;
-    nova_variavel->valor.num_valor = num_valor;
-    nova_variavel->proximo = pilha_de_escopos->variaveis;
-    pilha_de_escopos->variaveis = nova_variavel;
-}
-
-void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor) {
-    if (pilha_de_escopos == NULL) {
-        printf("Erro: Pilha de escopos não inicializada\n");
-        return;
-    }
-    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
-    nova_variavel->tipo = strdup(tipo);
-    nova_variavel->nome = strdup(nome);
-    nova_variavel->tipo_valor = TIPO_CADEIA;
-    nova_variavel->valor.str_valor = strdup(str_valor);
-    nova_variavel->proximo = pilha_de_escopos->variaveis;
-    pilha_de_escopos->variaveis = nova_variavel;
-}
-
 void imprimir_pilha() {
     printf("Pilha = [");
-    Escopo *escopo_atual = pilha_de_escopos;
-    while (escopo_atual != NULL) {
-        printf("[");
-        Variavel *var_atual = escopo_atual->variaveis;
-        while (var_atual != NULL) {
-            if (var_atual->tipo_valor == TIPO_NUMERO) {
-                printf("[%s, %s, %d]", var_atual->tipo, var_atual->nome, var_atual->valor.num_valor);
-            } else {
-                printf("[%s, %s, %s]", var_atual->tipo, var_atual->nome, var_atual->valor.str_valor);
-            }
-            var_atual = var_atual->proximo;
-            if (var_atual != NULL) {
-                printf(", ");
-            }
-        }
-        printf("]");
-        escopo_atual = escopo_atual->proximo;
-        if (escopo_atual != NULL) {
+    Escopo *atual = pilha_de_escopos;
+    while (atual != NULL) {
+        printf("[]");
+        if (atual->proximo != NULL) {
             printf(", ");
         }
+        atual = atual->proximo;
     }
     printf("]\n");
 }
@@ -208,11 +152,10 @@ void imprimir_pilha() {
 int linha_indice = 0; // Declaração da variável de contagem de linhas
 
 
-#line 111 "teste.y"
-typedef union 
-{
-	int number;
-    char *string;
+#line 55 "teste.y"
+typedef union {
+    int ival;
+    char *sval;
 } yy_parse_stype;
 #define YY_parse_STYPE yy_parse_stype
 #ifndef YY_USE_CLASS
@@ -616,10 +559,10 @@ static const short yyrhs[] = {    15,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   123,   125,   128,   130,   131,   132,   133,   134,   137,   144,
-   151,   156,   159,   164,   166,   169,   173,   178,   180,   183,
-   187,   192,   196,   199,   202,   207,   211,   216,   218,   221,
-   225,   230
+    66,    72,    75,    77,    78,    79,    80,    81,    84,    91,
+    98,   102,   105,   109,   111,   113,   115,   117,   119,   121,
+   123,   125,   127,   128,   129,   132,   134,   136,   138,   140,
+   142,   145
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
@@ -1183,119 +1126,56 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 124 "teste.y"
-{linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();;
+#line 67 "teste.y"
+{
+        linha_indice++; 
+        printf("[%d] ", linha_indice); 
+        imprimir_pilha();
+        ;
     break;}
 case 9:
-#line 138 "teste.y"
+#line 85 "teste.y"
 {
         printf("linha_inicio_bloco --- "); 
         empilhar_escopo();
         ;
     break;}
 case 10:
-#line 145 "teste.y"
+#line 92 "teste.y"
 {
         printf("linha_fim_bloco --- "); 
         desempilhar_escopo();
         ;
     break;}
 case 11:
-#line 152 "teste.y"
+#line 99 "teste.y"
 { 
         printf("linha_declaracao\n"); 
-        adicionar_variavel_numero("NUMERO", yyvsp[0].string, 0); 
         ;
     break;}
 case 12:
-#line 156 "teste.y"
+#line 102 "teste.y"
 { 
         printf("linha_declaracao\n"); 
         ;
     break;}
 case 13:
-#line 159 "teste.y"
+#line 105 "teste.y"
 { 
         printf("linha_declaracao\n"); 
         ;
     break;}
-case 16:
-#line 170 "teste.y"
-{ 
-        
-        ;
-    break;}
-case 17:
-#line 173 "teste.y"
-{ 
-        
-        ;
-    break;}
-case 20:
-#line 184 "teste.y"
-{ 
-        adicionar_variavel_numero("NUMERO", yyvsp[-2].string, yyvsp[0].number); 
-        ;
-    break;}
-case 21:
-#line 187 "teste.y"
-{ 
-        adicionar_variavel_numero("NUMERO", yyvsp[0].string, 0); 
-        ;
-    break;}
-case 22:
-#line 193 "teste.y"
-{ 
-        yyval.number = yyvsp[0].number; 
-        ;
-    break;}
-case 23:
-#line 196 "teste.y"
-{ 
-        yyval.number = 0; 
-        ;
-    break;}
-case 24:
-#line 199 "teste.y"
-{ 
-        yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
-        ;
-    break;}
-case 25:
-#line 202 "teste.y"
-{ 
-        yyval.number = 100000;
-        ;
-    break;}
 case 26:
-#line 208 "teste.y"
-{ 
-        printf("linha_atribuicao\n"); 
-        ;
+#line 133 "teste.y"
+{ printf("linha_atribuicao\n"); ;
     break;}
 case 27:
-#line 211 "teste.y"
-{ 
-        printf("linha_atribuicao\n"); 
-        ;
-    break;}
-case 30:
-#line 222 "teste.y"
-{ 
-        yyval.number = yyvsp[0].number; 
-        ;
-    break;}
-case 31:
-#line 225 "teste.y"
-{ 
-        yyval.number = 0; 
-        ;
+#line 134 "teste.y"
+{ printf("linha_atribuicao\n"); ;
     break;}
 case 32:
-#line 231 "teste.y"
-{ 
-        printf("linha_print\n"); 
-        ;
+#line 146 "teste.y"
+{ printf("linha_print\n"); ;
     break;}
 }
 
@@ -1501,7 +1381,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 236 "teste.y"
+#line 149 "teste.y"
 
 
 void yyerror(const char *s) {

@@ -64,31 +64,47 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 %%
 
 programa:
-    programa linha {linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();}
+    programa linha {
+        linha_indice++; 
+        printf("[%d] ", linha_indice); 
+        imprimir_pilha();
+        }
     | /* vazio */
     ;
 
 linha:
     linha_inicio_bloco
     | linha_fim_bloco
-    | linha_declaracao
-    | linha_atribuicao
-    | linha_print
+    | linha_declaracao ';'
+    | linha_atribuicao ';'
+    | linha_print ';'
     | /* vazio */
     ;
 
 linha_inicio_bloco:
-    BLOCO_INICIO {printf("linha_inicio_bloco --- "); empilhar_escopo();}
+    BLOCO_INICIO {
+        printf("linha_inicio_bloco --- "); 
+        empilhar_escopo();
+        }
     ;
 
 linha_fim_bloco:
-    BLOCO_FIM {printf("linha_fim_bloco --- "); desempilhar_escopo();}
+    BLOCO_FIM {
+        printf("linha_fim_bloco --- "); 
+        desempilhar_escopo();
+        }
     ;
 
 linha_declaracao:
-    TIPO_NUMERO IDENTIFICADOR ';' { printf("linha_declaracao\n"); }
-    | TIPO_CADEIA lista_declaracao_cadeia ';' { printf("linha_declaracao\n"); }
-    | TIPO_NUMERO lista_declaracao_numero ';' { printf("linha_declaracao\n"); }
+    TIPO_NUMERO IDENTIFICADOR { 
+        printf("linha_declaracao\n"); 
+        }
+    | TIPO_CADEIA lista_declaracao_cadeia { 
+        printf("linha_declaracao\n"); 
+        }
+    | TIPO_NUMERO lista_declaracao_numero { 
+        printf("linha_declaracao\n"); 
+        }
     ;
     lista_declaracao_cadeia:
         declaracao_cadeia
@@ -103,9 +119,7 @@ linha_declaracao:
         | lista_declaracao_numero ',' declaracao_numero
         ;
     declaracao_numero:
-        IDENTIFICADOR '=' expressao_numero{
-            printf
-        }
+        IDENTIFICADOR '=' expressao_numero
         | IDENTIFICADOR
         ;
     expressao_numero:
@@ -116,8 +130,8 @@ linha_declaracao:
         ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' lista_expressao ';' { printf("linha_atribuicao\n"); }
-    | IDENTIFICADOR '=' CADEIA ';' { printf("linha_atribuicao\n"); }
+    IDENTIFICADOR '=' lista_expressao { printf("linha_atribuicao\n"); }
+    | IDENTIFICADOR '=' CADEIA { printf("linha_atribuicao\n"); }
     ;
     lista_expressao:
         expressao
@@ -129,7 +143,7 @@ linha_atribuicao:
         ;
 
 linha_print:
-    PRINT IDENTIFICADOR ';' { printf("linha_print\n"); }
+    PRINT IDENTIFICADOR { printf("linha_print\n"); }
     ;
 
 %%

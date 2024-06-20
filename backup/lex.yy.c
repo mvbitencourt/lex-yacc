@@ -802,18 +802,18 @@ YY_RULE_SETUP
 case 6:
 YY_RULE_SETUP
 #line 13 "teste.l"
-{ yylval.string = strdup(yytext); return IDENTIFICADOR; }
+{ yylval.sval = strdup(yytext); return IDENTIFICADOR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 14 "teste.l"
-{ yylval.number = atoi(yytext); return NUMERO; }
+{ yylval.ival = atoi(yytext); return NUMERO; }
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
 #line 15 "teste.l"
-{ yylval.string = strdup(yytext); return CADEIA; }
+{ yylval.sval = strdup(yytext); return CADEIA; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP

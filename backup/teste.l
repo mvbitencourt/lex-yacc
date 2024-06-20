@@ -5,21 +5,21 @@
 
 %%
 
-[ \t]*BLOCO[ \t]*_[a-zA-Z_][a-zA-Z0-9_]*_[ \t]*      { return BLOCO_INICIO; }
-[ \t]*FIM[ \t]*_[a-zA-Z_][a-zA-Z0-9_]*_[ \t]*        { return BLOCO_FIM; }
+[ \t]*BLOCO[ \t]*_[a-zA-Z0-9][a-zA-Z0-9]*_     { return BLOCO_INICIO; }
+[ \t]*FIM[ \t]*_[a-zA-Z0-9][a-zA-Z0-9]*_     { return BLOCO_FIM; }
 [ \t]*NUMERO[ \t]*          { return TIPO_NUMERO; }
 [ \t]*CADEIA[ \t]*          { return TIPO_CADEIA; }
-[ \t]*PRINT[ \t]*[a-zA-Z_][a-zA-Z0-9_]*[ \t]* { return PRINT; }
-[ \t]*[a-zA-Z_][a-zA-Z0-9_]*[ \t]*   { yylval.sval = strdup(yytext); return IDENTIFICADOR; }
-[ \t]*[+-]?\d+(\.\d+)?[ \t]*         { yylval.ival = atoi(yytext); return NUMERO; }
-[ \t]*\"[^\"]*\"[ \t]*                  { yylval.sval = strdup(yytext); return CADEIA; }
+[ \t]*PRINT[ \t]*           { return PRINT; }
+[ \t]*[a-zA-Z][a-zA-Z0-9]*[ \t]*   { yylval.sval = strdup(yytext); return IDENTIFICADOR; }
+[ \t]*[0-9]+[ \t]*          { yylval.ival = atoi(yytext); return NUMERO; }
+[ \t]*\"[^\"]*\"[ \t]*        { yylval.sval = strdup(yytext); return CADEIA; }
 =                           { return '='; }
 ;                           { return ';'; }
 ,                           { return ','; }
 \+                          { return '+'; }
 \n                          { /* Ignorar novas linhas */ }
-[ \t]+                       { /* Ignorar espaços e tabulações */ }
-.                           { printf("Caractere desconhecido: %s\n", yytext); }
+[ \t]+                      { /* Ignorar espaços e tabulações */ }
+.                           { printf("Desconhecido: %s\n", yytext); }
 
 %%
 

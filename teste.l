@@ -10,9 +10,9 @@
 [ \t]*NUMERO[ \t]*          { return TIPO_NUMERO; }
 [ \t]*CADEIA[ \t]*          { return TIPO_CADEIA; }
 [ \t]*PRINT[ \t]*           { return PRINT; }
-[ \t]*[a-zA-Z][a-zA-Z0-9]*[ \t]*   { yylval.sval = strdup(yytext); return IDENTIFICADOR; }
-[ \t]*[0-9]+[ \t]*          { yylval.ival = atoi(yytext); return NUMERO; }
-[ \t]*\"[^\"]*\"[ \t]*        { yylval.sval = strdup(yytext); return CADEIA; }
+[ \t]*[a-zA-Z][a-zA-Z0-9]*[ \t]*   { yylval.string = strdup(yytext); return IDENTIFICADOR; }
+[ \t]*[0-9]+[ \t]*          { yylval.number = atoi(yytext); return NUMERO; }
+[ \t]*\"[^\"]*\"[ \t]*        { yylval.string = strdup(yytext); return CADEIA; }
 =                           { return '='; }
 ;                           { return ';'; }
 ,                           { return ','; }

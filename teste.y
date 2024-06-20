@@ -105,20 +105,17 @@ void imprimir_pilha() {
 }
 
 int linha_indice = 0; // Declaração da variável de contagem de linhas
-int tipo_var = 0;
-char* nome_var;
-int valor_var_num = 0;
-char* valor_var_cad;
 
 %}
 
-%union {
-    int ival;
-    char *sval;
+%union 
+{
+	int number;
+    char *string;
 }
 
-%token <sval> BLOCO_INICIO BLOCO_FIM IDENTIFICADOR CADEIA
-%token <ival> NUMERO
+%token BLOCO_INICIO BLOCO_FIM IDENTIFICADOR CADEIA
+%token NUMERO
 %token TIPO_NUMERO TIPO_CADEIA PRINT
 
 %%
@@ -131,9 +128,9 @@ programa:
 linha:
     linha_inicio_bloco
     | linha_fim_bloco
-    | linha_declaracao
-    | linha_atribuicao
-    | linha_print
+    | linha_declaracao ';'
+    | linha_atribuicao ';'
+    | linha_print ';'
     | /* vazio */
     ;
 
@@ -152,14 +149,14 @@ linha_fim_bloco:
     ;
 
 linha_declaracao:
-    TIPO_NUMERO IDENTIFICADOR ';' { 
+    TIPO_NUMERO IDENTIFICADOR  { 
         printf("linha_declaracao\n"); 
-        adicionar_variavel_numero("NUMERO", $2, 0); 
+        adicionar_variavel_numero("NUMERO", $2.string, 0); 
         }
-    | TIPO_CADEIA lista_declaracao_cadeia ';' { 
+    | TIPO_CADEIA lista_declaracao_cadeia  { 
         printf("linha_declaracao\n"); 
         }
-    | TIPO_NUMERO lista_declaracao_numero ';' { 
+    | TIPO_NUMERO lista_declaracao_numero  { 
         printf("linha_declaracao\n"); 
         }
     ;
@@ -171,10 +168,10 @@ lista_declaracao_cadeia:
 
 declaracao_cadeia:
     IDENTIFICADOR '=' CADEIA { 
-        adicionar_variavel_cadeia("CADEIA", $1, $3); 
+        
         }
     | IDENTIFICADOR { 
-        adicionar_variavel_cadeia("CADEIA", $1, ""); 
+        
         }
     ;
 
@@ -185,35 +182,33 @@ lista_declaracao_numero:
 
 declaracao_numero:
     IDENTIFICADOR '=' expressao_numero { 
-        adicionar_variavel_numero("NUMERO", $1, $3); 
+        adicionar_variavel_numero("NUMERO", $1.string, $3.number); 
         }
     | IDENTIFICADOR { 
-        adicionar_variavel_numero("NUMERO", $1, 0); 
+        adicionar_variavel_numero("NUMERO", $1.string, 0); 
         }
     ;
 
 expressao_numero:
     NUMERO { 
-        $$ = $1; 
+        $$.number = $1.number; 
         }
     | IDENTIFICADOR { 
-        $$ = 0; 
+        $$.number = 0; 
         }
     | expressao_numero '+' NUMERO { 
-        $$ = $1 + $3; 
+        $$.number  = $1.number + $3.number; 
         }
-    /*
     | expressao_numero '+' IDENTIFICADOR { 
-        Buscar valor de IDENTIFICADOR na pilha
+        $$.number = 100000;
         }
-    */
     ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' lista_expressao ';' { 
+    IDENTIFICADOR '=' lista_expressao  { 
         printf("linha_atribuicao\n"); 
         }
-    | IDENTIFICADOR '=' CADEIA ';' { 
+    | IDENTIFICADOR '=' CADEIA  { 
         printf("linha_atribuicao\n"); 
         }
     ;
@@ -225,15 +220,15 @@ lista_expressao:
 
 expressao:
     NUMERO { 
-        $$ = $1; 
+        $$.number = $1.number; 
         }
     | IDENTIFICADOR { 
-        $$ = 0; 
+        $$.number = 0; 
         }
     ;
 
 linha_print:
-    PRINT IDENTIFICADOR ';' { 
+    PRINT IDENTIFICADOR  { 
         printf("linha_print\n"); 
         }
     ;
