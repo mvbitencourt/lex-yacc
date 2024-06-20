@@ -105,6 +105,10 @@ void imprimir_pilha() {
 }
 
 int linha_indice = 0; // Declaração da variável de contagem de linhas
+int tipo_var = NULL;
+char* nome_var
+int valor_var_num
+char* valor_var_cad
 
 %}
 
