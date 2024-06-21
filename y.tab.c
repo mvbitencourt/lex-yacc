@@ -120,6 +120,11 @@ typedef struct Variavel {
     struct Variavel *proximo;
 } Variavel;
 
+typedef union {
+    int num_valor;
+    char *str_valor;
+} ValorVariavel;
+
 typedef struct Escopo {
     Variavel *variaveis;
     struct Escopo *proximo;
@@ -149,6 +154,99 @@ void desempilhar_escopo() {
 void inicializar_pilha_de_escopos() {
     pilha_de_escopos = NULL;
     printf("Pilha de escopos inicializada\n");
+}
+
+Variavel* verifica_variavel_existe_pilha(char *identificador) {
+    Escopo *escopo_atual = pilha_de_escopos;
+    while (escopo_atual != NULL) {
+        Variavel *var_atual = escopo_atual->variaveis;
+        while (var_atual != NULL) {
+            if (strcmp(var_atual->nome, identificador) == 0) {
+                return var_atual;
+            }
+            var_atual = var_atual->proximo;
+        }
+        escopo_atual = escopo_atual->proximo;
+    }
+    return NULL;
+}
+
+char* verifica_tipo_variavel(char *nome_var) {
+    Escopo *escopo_atual = pilha_de_escopos;
+    while (escopo_atual != NULL) {
+        Variavel *var_atual = escopo_atual->variaveis;
+        while (var_atual != NULL) {
+            if (strcmp(var_atual->nome, nome_var) == 0) {
+                return var_atual->tipo;
+            }
+            var_atual = var_atual->proximo;
+        }
+        escopo_atual = escopo_atual->proximo;
+    }
+    printf("Erro: Variável %s não encontrada\n", nome_var);
+    return NULL; // Retornar NULL se a variável não for encontrada
+}
+
+int busca_valor_variavel_numero(char *nome_var) {
+    Escopo *escopo_atual = pilha_de_escopos;
+    while (escopo_atual != NULL) {
+        Variavel *var_atual = escopo_atual->variaveis;
+        while (var_atual != NULL) {
+            if (strcmp(var_atual->nome, nome_var) == 0) {
+                if (var_atual->tipo_valor == TIPO_NUMERO) {
+                    return var_atual->valor.num_valor;
+                } else {
+                    printf("Erro: Variável %s não é do tipo NUMERO\n", nome_var);
+                    return 0; // Valor padrão ou tratar erro de outra forma
+                }
+            }
+            var_atual = var_atual->proximo;
+        }
+        escopo_atual = escopo_atual->proximo;
+    }
+    printf("Erro: Variável %s não encontrada\n", nome_var);
+    return 0; // Valor padrão se a variável não for encontrada
+}
+
+char* busca_valor_variavel_cadeia(char *nome_var) {
+    Escopo *escopo_atual = pilha_de_escopos;
+    while (escopo_atual != NULL) {
+        Variavel *var_atual = escopo_atual->variaveis;
+        while (var_atual != NULL) {
+            if (strcmp(var_atual->nome, nome_var) == 0) {
+                if (var_atual->tipo_valor == TIPO_CADEIA) {
+                    return var_atual->valor.str_valor;
+                } else {
+                    printf("Erro: Variável %s não é do tipo CADEIA\n", nome_var);
+                    return NULL; // Valor padrão ou tratar erro de outra forma
+                }
+            }
+            var_atual = var_atual->proximo;
+        }
+        escopo_atual = escopo_atual->proximo;
+    }
+    printf("Erro: Variável %s não encontrada\n", nome_var);
+    return NULL; // Valor padrão se a variável não for encontrada
+}
+
+char* remove_espacos(const char* str) {
+    int i, j;
+    int len = strlen(str);
+    char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
+
+    if (nova_str == NULL) {
+        fprintf(stderr, "Erro de alocação de memória\n");
+        exit(1);
+    }
+
+    for (i = 0, j = 0; i < len; i++) {
+        if (str[i] != ' ') {
+            nova_str[j++] = str[i];
+        }
+    }
+    nova_str[j] = '\0'; // Termina a nova string
+
+    return nova_str;
 }
 
 void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
@@ -208,7 +306,7 @@ void imprimir_pilha() {
 int linha_indice = 0; // Declaração da variável de contagem de linhas
 
 
-#line 111 "teste.y"
+#line 209 "teste.y"
 typedef union 
 {
 	int number;
@@ -556,11 +654,11 @@ YY_parse_CONSTRUCTOR_CODE;
  #line 352 "/usr/share/bison++/bison.cc"
 
 
-#define	YYFINAL		47
+#define	YYFINAL		51
 #define	YYFLAG		-32768
 #define	YYNTBASE	15
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 265 ? yytranslate[x] : 29)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 265 ? yytranslate[x] : 30)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -595,98 +693,101 @@ static const char yytranslate[] = {     0,
 #if YY_parse_DEBUG != 0
 static const short yyprhs[] = {     0,
      0,     3,     4,     6,     8,    11,    14,    17,    18,    20,
-    22,    25,    28,    31,    33,    37,    41,    43,    45,    49,
-    53,    55,    57,    59,    63,    67,    71,    75,    77,    81,
-    83,    85
+    22,    25,    28,    30,    34,    38,    40,    42,    44,    48,
+    52,    54,    58,    62,    64,    66,    68,    72,    76,    80,
+    84,    86,    90,    92,    94
 };
 
 static const short yyrhs[] = {    15,
     16,     0,     0,    17,     0,    18,     0,    19,    11,     0,
-    25,    11,     0,    28,    11,     0,     0,     3,     0,     4,
-     0,     8,     5,     0,     9,    20,     0,     8,    22,     0,
-    21,     0,    20,    12,    21,     0,     5,    13,     6,     0,
-     5,     0,    23,     0,    22,    12,    23,     0,     5,    13,
-    24,     0,     5,     0,     7,     0,     5,     0,    24,    14,
-     7,     0,    24,    14,     5,     0,     5,    13,    26,     0,
-     5,    13,     6,     0,    27,     0,    26,    14,    27,     0,
-     7,     0,     5,     0,    10,     5,     0
+    26,    11,     0,    29,    11,     0,     0,     3,     0,     4,
+     0,     9,    20,     0,     8,    23,     0,    21,     0,    20,
+    12,    21,     0,     5,    13,    22,     0,     5,     0,     6,
+     0,     5,     0,    22,    14,     6,     0,    22,    14,     5,
+     0,    24,     0,    23,    12,    24,     0,     5,    13,    25,
+     0,     5,     0,     7,     0,     5,     0,    25,    14,     7,
+     0,    25,    14,     5,     0,     5,    13,    27,     0,     5,
+    13,     6,     0,    28,     0,    27,    14,    28,     0,     7,
+     0,     5,     0,    10,     5,     0
 };
 
 #endif
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   123,   125,   128,   130,   131,   132,   133,   134,   137,   144,
-   151,   156,   159,   164,   166,   169,   173,   178,   180,   183,
-   187,   192,   196,   199,   202,   207,   211,   216,   218,   221,
-   225,   230
+   221,   223,   226,   228,   229,   230,   231,   232,   235,   242,
+   249,   253,   258,   260,   262,   272,   282,   286,   297,   307,
+   331,   333,   335,   345,   355,   359,   371,   374,   391,   395,
+   400,   402,   405,   409,   414
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
 "BLOCO_FIM","IDENTIFICADOR","CADEIA","NUMERO","TIPO_NUMERO","TIPO_CADEIA","PRINT",
 "';'","','","'='","'+'","programa","linha","linha_inicio_bloco","linha_fim_bloco",
-"linha_declaracao","lista_declaracao_cadeia","declaracao_cadeia","lista_declaracao_numero",
-"declaracao_numero","expressao_numero","linha_atribuicao","lista_expressao",
-"expressao","linha_print",""
+"linha_declaracao","lista_declaracao_cadeia","declaracao_cadeia","expressao_cadeia",
+"lista_declaracao_numero","declaracao_numero","expressao_numero","linha_atribuicao",
+"lista_expressao","expressao","linha_print",""
 };
 #endif
 
 static const short yyr1[] = {     0,
     15,    15,    16,    16,    16,    16,    16,    16,    17,    18,
-    19,    19,    19,    20,    20,    21,    21,    22,    22,    23,
-    23,    24,    24,    24,    24,    25,    25,    26,    26,    27,
-    27,    28
+    19,    19,    20,    20,    21,    21,    22,    22,    22,    22,
+    23,    23,    24,    24,    25,    25,    25,    25,    26,    26,
+    27,    27,    28,    28,    29
 };
 
 static const short yyr2[] = {     0,
      2,     0,     1,     1,     2,     2,     2,     0,     1,     1,
-     2,     2,     2,     1,     3,     3,     1,     1,     3,     3,
-     1,     1,     1,     3,     3,     3,     3,     1,     3,     1,
-     1,     2
+     2,     2,     1,     3,     3,     1,     1,     1,     3,     3,
+     1,     3,     3,     1,     1,     1,     3,     3,     3,     3,
+     1,     3,     1,     1,     2
 };
 
 static const short yydefact[] = {     2,
      0,     9,    10,     0,     0,     0,     0,     1,     3,     4,
-     0,     0,     0,     0,    11,    13,    18,    17,    12,    14,
-    32,     5,     6,     7,    31,    27,    30,    26,    28,     0,
-     0,     0,     0,     0,    23,    22,    20,    21,    19,    16,
-    15,    29,     0,    25,    24,     0,     0
+     0,     0,     0,     0,    24,    12,    21,    16,    11,    13,
+    35,     5,     6,     7,    34,    30,    33,    29,    31,     0,
+     0,     0,     0,     0,    26,    25,    23,    22,    18,    17,
+    15,    14,    32,     0,     0,    28,    27,    20,    19,     0,
+     0
 };
 
 static const short yydefgoto[] = {     1,
-     8,     9,    10,    11,    19,    20,    16,    17,    37,    12,
-    28,    29,    13
+     8,     9,    10,    11,    19,    20,    41,    16,    17,    37,
+    12,    28,    29,    13
 };
 
 static const short yypact[] = {-32768,
-     0,-32768,-32768,    -7,     2,    14,    16,-32768,-32768,-32768,
-    11,    12,    15,     6,   -11,    17,-32768,    18,    20,-32768,
--32768,-32768,-32768,-32768,-32768,-32768,-32768,    19,-32768,     9,
-    22,    24,    14,    10,-32768,-32768,    21,    23,-32768,-32768,
--32768,-32768,    13,-32768,-32768,    25,-32768
+     0,-32768,-32768,     8,    14,    17,    18,-32768,-32768,-32768,
+    15,    16,    19,     6,    11,    20,-32768,    12,    21,-32768,
+-32768,-32768,-32768,-32768,-32768,-32768,-32768,    22,-32768,     9,
+    14,    -4,    17,    10,-32768,-32768,    23,-32768,-32768,-32768,
+    24,-32768,-32768,    13,     1,-32768,-32768,-32768,-32768,    28,
+-32768
 };
 
 static const short yypgoto[] = {-32768,
--32768,-32768,-32768,-32768,-32768,    -9,-32768,    -3,-32768,-32768,
--32768,     3,-32768
+-32768,-32768,-32768,-32768,-32768,    -2,-32768,-32768,     3,-32768,
+-32768,-32768,    -5,-32768
 };
 
 
-#define	YYLAST		37
+#define	YYLAST		38
 
 
-static const short yytable[] = {    46,
-   -21,    30,     2,     3,     4,    14,    15,     5,     6,     7,
-    25,    26,    27,    35,    25,    36,    27,    44,    18,    45,
-    21,    22,    23,    41,    47,    24,    38,    39,    31,    40,
-    32,    33,    34,     0,    43,    30,    42
+static const short yytable[] = {    50,
+    39,    40,     2,     3,     4,    48,    49,     5,     6,     7,
+    25,    26,    27,    35,    25,    36,    27,    46,    15,    47,
+    14,    18,    21,    30,    32,    22,    23,    51,    43,    24,
+    42,    31,    33,    38,     0,    34,    44,    45
 };
 
 static const short yycheck[] = {     0,
-    12,    13,     3,     4,     5,    13,     5,     8,     9,    10,
+     5,     6,     3,     4,     5,     5,     6,     8,     9,    10,
      5,     6,     7,     5,     5,     7,     7,     5,     5,     7,
-     5,    11,    11,    33,     0,    11,     5,    31,    12,     6,
-    13,    12,    14,    -1,    14,    13,    34
+    13,     5,     5,    13,    13,    11,    11,     0,    34,    11,
+    33,    12,    12,    31,    -1,    14,    14,    14
 };
 
 #line 352 "/usr/share/bison++/bison.cc"
@@ -1183,119 +1284,216 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 124 "teste.y"
+#line 222 "teste.y"
 {linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();;
     break;}
 case 9:
-#line 138 "teste.y"
+#line 236 "teste.y"
 {
         printf("linha_inicio_bloco --- "); 
         empilhar_escopo();
-        ;
+    ;
     break;}
 case 10:
-#line 145 "teste.y"
+#line 243 "teste.y"
 {
         printf("linha_fim_bloco --- "); 
         desempilhar_escopo();
-        ;
+    ;
     break;}
 case 11:
-#line 152 "teste.y"
+#line 250 "teste.y"
 { 
         printf("linha_declaracao\n"); 
-        adicionar_variavel_numero("NUMERO", yyvsp[0].string, 0); 
-        ;
+    ;
     break;}
 case 12:
-#line 156 "teste.y"
+#line 253 "teste.y"
 { 
         printf("linha_declaracao\n"); 
-        ;
+    ;
     break;}
-case 13:
-#line 159 "teste.y"
+case 15:
+#line 263 "teste.y"
 { 
-        printf("linha_declaracao\n"); 
+            char* s1 = remove_espacos(yyvsp[-2].string);
+            if (verifica_variavel_existe_pilha(s1) == NULL) {
+                adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string);
+            }
+            else {
+                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            }
         ;
     break;}
 case 16:
-#line 170 "teste.y"
-{ 
-        
+#line 272 "teste.y"
+{
+            char* s1 = remove_espacos(yyvsp[0].string); 
+            if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
+                adicionar_variavel_cadeia("CADEIA", s1, "");
+            }
+            else {
+                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            }
         ;
     break;}
 case 17:
-#line 173 "teste.y"
+#line 283 "teste.y"
 { 
-        
+            yyval.string = yyvsp[0].string; 
+        ;
+    break;}
+case 18:
+#line 286 "teste.y"
+{ 
+            char* s1 = remove_espacos(yyvsp[0].string);
+            if(verifica_variavel_existe_pilha(s1) != NULL){
+                if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
+                    yyval.string = busca_valor_variavel_cadeia(s1); 
+                }
+                else{
+                    printf("Erro: Tipos incompativeis\n");
+                }
+            }
+        ;
+    break;}
+case 19:
+#line 297 "teste.y"
+{
+            size_t len1 = strlen(yyvsp[-2].string);
+            size_t len2 = strlen(yyvsp[0].string);
+            char* result = (char*)malloc(len1 + len2 + 1);
+
+            strcpy(result, yyvsp[-2].string);
+            strcat(result, yyvsp[0].string);
+ 
+            yyval.string  = result; 
         ;
     break;}
 case 20:
-#line 184 "teste.y"
-{ 
-        adicionar_variavel_numero("NUMERO", yyvsp[-2].string, yyvsp[0].number); 
-        ;
-    break;}
-case 21:
-#line 187 "teste.y"
-{ 
-        adicionar_variavel_numero("NUMERO", yyvsp[0].string, 0); 
-        ;
-    break;}
-case 22:
-#line 193 "teste.y"
-{ 
-        yyval.number = yyvsp[0].number; 
+#line 307 "teste.y"
+{
+            char* s3 = remove_espacos(yyvsp[0].string);
+            if(verifica_variavel_existe_pilha(s3) != NULL){
+                if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
+                    char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+
+                    size_t len1 = strlen(yyvsp[-2].string);
+                    size_t len2 = strlen(valor_variavel_s3);
+                    char* result = (char*)malloc(len1 + len2 + 1);
+
+                    strcpy(result, yyvsp[-2].string);
+                    strcat(result, valor_variavel_s3);
+
+                    yyval.string  = result;
+                }
+                else{
+                    printf("Erro: Tipos incompativeis\n");
+                }
+            }
+            else{
+                printf("Erro: Variavel não declarada\n");
+            }
         ;
     break;}
 case 23:
-#line 196 "teste.y"
+#line 336 "teste.y"
 { 
-        yyval.number = 0; 
+            char* s1 = remove_espacos(yyvsp[-2].string);
+            if (verifica_variavel_existe_pilha(s1) == NULL) {
+                adicionar_variavel_numero("NUMERO", s1, yyvsp[0].number);
+            }
+            else {
+                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            }
         ;
     break;}
 case 24:
-#line 199 "teste.y"
-{ 
-        yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
+#line 345 "teste.y"
+{
+            char* s1 = remove_espacos(yyvsp[0].string); 
+            if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
+                adicionar_variavel_numero("NUMERO", s1, 0);
+            }
+            else {
+                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            }
         ;
     break;}
 case 25:
-#line 202 "teste.y"
+#line 356 "teste.y"
 { 
-        yyval.number = 100000;
+            yyval.number = yyvsp[0].number; 
         ;
     break;}
 case 26:
-#line 208 "teste.y"
+#line 359 "teste.y"
 { 
-        printf("linha_atribuicao\n"); 
+            char* s1 = remove_espacos(yyvsp[0].string);
+            if(verifica_variavel_existe_pilha(s1) != NULL){
+                if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
+                    yyval.number = busca_valor_variavel_numero(s1); 
+                }
+                else{
+                    printf("\n\n==== %s ====\n\n", verifica_tipo_variavel(s1));
+                    printf("Erro: Tipos incompativeis\n");
+                }
+            }
         ;
     break;}
 case 27:
-#line 211 "teste.y"
+#line 371 "teste.y"
+{ 
+            yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
+        ;
+    break;}
+case 28:
+#line 374 "teste.y"
+{
+            char* s3 = remove_espacos(yyvsp[0].string);
+            if(verifica_variavel_existe_pilha(s3) != NULL){
+                if(strcmp(verifica_tipo_variavel(s3), "NUMERO") == 0){
+                    int valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                    yyval.number  = yyvsp[-2].number + valor_variavel_s3; 
+                }
+                else{
+                    printf("Erro: Tipos incompativeis\n");
+                }
+            }
+            else{
+                printf("Erro: Variavel não declarada\n");
+            }
+        ;
+    break;}
+case 29:
+#line 392 "teste.y"
 { 
         printf("linha_atribuicao\n"); 
-        ;
+    ;
     break;}
 case 30:
-#line 222 "teste.y"
+#line 395 "teste.y"
+{ 
+        printf("linha_atribuicao\n"); 
+    ;
+    break;}
+case 33:
+#line 406 "teste.y"
 { 
         yyval.number = yyvsp[0].number; 
-        ;
+    ;
     break;}
-case 31:
-#line 225 "teste.y"
+case 34:
+#line 409 "teste.y"
 { 
         yyval.number = 0; 
-        ;
+    ;
     break;}
-case 32:
-#line 231 "teste.y"
+case 35:
+#line 415 "teste.y"
 { 
         printf("linha_print\n"); 
-        ;
+    ;
     break;}
 }
 
@@ -1501,7 +1699,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 236 "teste.y"
+#line 420 "teste.y"
 
 
 void yyerror(const char *s) {
