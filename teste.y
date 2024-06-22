@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <regex.h>
 
 void yyerror(const char *s);
 int yylex(void);
@@ -389,27 +390,113 @@ linha_declaracao:
         ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' lista_expressao  { 
-        printf("linha_atribuicao\n"); 
+    IDENTIFICADOR '=' lista_expressao_numero { 
+        printf("linha_atribuicao\n");
+        char* s1 = remove_espacos($1.string); 
+        if(verifica_variavel_existe_pilha(s1) != NULL) {
+            char* tipo_identificador = verifica_tipo_variavel(s1);
+            if (tipo_identificador != NULL) {
+                if ((strcmp(tipo_identificador, "NUMERO") == 0)) {
+                    adicionar_variavel_numero(tipo_identificador, s1, $3.number);
+                }
+                else {
+                    printf("Erro: Tipos incompatíveis na atribuição\n");
+                }
+            }
+            else {
+                printf("Erro: Variável '%s' com tipo invalido\n", s1);
+            }
+        }
+        else{
+            printf("Erro: Variável '%s' não declarada\n", s1);
+        }
     }
-    | IDENTIFICADOR '=' CADEIA  { 
-        printf("linha_atribuicao\n"); 
+    | IDENTIFICADOR '=' lista_expressao_cadeia { 
+        printf("linha_atribuicao\n");
+        char* s1 = remove_espacos($1.string); 
+        if(verifica_variavel_existe_pilha(s1) != NULL) {
+            char* tipo_identificador = verifica_tipo_variavel(s1);
+            if (tipo_identificador != NULL) {
+                if ((strcmp(tipo_identificador, "CADEIA") == 0)) {
+                    adicionar_variavel_cadeia(tipo_identificador, s1, $3.string);
+                }
+                else {
+                    printf("Erro: Tipos incompatíveis na atribuição\n");
+                }
+            }
+            else {
+                printf("Erro: Variável '%s' com tipo invalido\n", s1);
+            }
+        }
+        else{
+            printf("Erro: Variável '%s' não declarada\n", s1);
+        }
     }
     ;
+    lista_expressao_numero:
+        expressao_numero {
+            $$.number = $1.number;
+        }
+        | lista_expressao_numero '+' expressao_numero {
+            $$.number = $1.number + $3.number;
+        }
+    ;
+    expressao_numero:
+        NUMERO {
+            $$.number = $1.number; 
+        }
+        | IDENTIFICADOR { 
+            char* s1 = $1.string;
+            if(verifica_variavel_existe_pilha(s1) != NULL){
+                if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
+                    $$.number = busca_valor_variavel_numero(s1); 
+                }
+                else{
+                    printf("Erro: Tipos invalidos\n");
+                }
+            }
+            else{
+                printf("Erro: Variavel '%s' não declarada\n", s1);
+            }
+        }
+        ;
+    lista_expressao_cadeia:
+        expressao_cadeia {
+            $$.string = $1.string;
+        }
+        | lista_expressao_cadeia '+' expressao_cadeia {
+            char* s1 = remove_espacos($1.string);
+            char* s3 = remove_espacos($3.string);
 
-lista_expressao:
-    expressao
-    | lista_expressao '+' expressao
-    ;
+            size_t len1 = strlen(s1);
+            size_t len2 = strlen(s3);
+            char* result = (char*)malloc(len1 + len2 + 1);
 
-expressao:
-    NUMERO { 
-        $$.number = $1.number; 
-    }
-    | IDENTIFICADOR { 
-        $$.number = 0; 
-    }
+            strcpy(result, s1);
+            strcat(result, s3);
+
+            $$.string  = result;
+        }
     ;
+    expressao_cadeia:
+        CADEIA {
+            $$.string = $1.string; 
+        }
+        | IDENTIFICADOR { 
+            char* s1 = $1.string;
+            if(verifica_variavel_existe_pilha(s1) != NULL){
+                if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
+                    $$.string = busca_valor_variavel_cadeia(s1); 
+                }
+                else{
+                    printf("Erro: Tipos invalidos\n");
+                }
+            }
+            else{
+                printf("Erro: Variavel '%s' não declarada\n", s1);
+            }
+        }
+        ;
 
 linha_print:
     PRINT IDENTIFICADOR  { 
