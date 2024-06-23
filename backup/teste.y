@@ -1,7 +1,9 @@
 %{
+#include <ctype.h>
+#include <regex.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
 void yyerror(const char *s);
 int yylex(void);
@@ -18,11 +20,6 @@ typedef struct Variavel {
     } valor;
     struct Variavel *proximo;
 } Variavel;
-
-typedef union {
-    int num_valor;
-    char *str_valor;
-} ValorVariavel;
 
 typedef struct Escopo {
     Variavel *variaveis;
@@ -70,6 +67,22 @@ Variavel* verifica_variavel_existe_pilha(char *identificador) {
     return NULL;
 }
 
+Variavel* verifica_variavel_existe_escopo_atual(char *identificador) {
+    if (pilha_de_escopos == NULL) {
+        return NULL;
+    }
+
+    Variavel *var_atual = pilha_de_escopos->variaveis;
+    while (var_atual != NULL) {
+        if (strcmp(var_atual->nome, identificador) == 0) {
+            return var_atual;
+        }
+        var_atual = var_atual->proximo;
+    }
+
+    return NULL;
+}
+
 char* verifica_tipo_variavel(char *nome_var) {
     Escopo *escopo_atual = pilha_de_escopos;
     while (escopo_atual != NULL) {
@@ -84,6 +97,48 @@ char* verifica_tipo_variavel(char *nome_var) {
     }
     printf("Erro: Variável %s não encontrada\n", nome_var);
     return NULL; // Retornar NULL se a variável não for encontrada
+}
+
+char* verifica_tipo_expressao(char* expressao) {
+    regex_t regex_numero;
+    regex_t regex_cadeia;
+    int reti;
+
+    // Expressão regular para NUMERO
+    reti = regcomp(&regex_numero, "^[+-]?[0-9]+$", REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex\n");
+        return NULL;
+    }
+
+    // Expressão regular para CADEIA
+    reti = regcomp(&regex_cadeia, "^\"[^\"]*\"$", REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex\n");
+        return NULL;
+    }
+
+    // Verifica se a expressão é um NUMERO
+    reti = regexec(&regex_numero, expressao, 0, NULL, 0);
+    if (!reti) {
+        regfree(&regex_numero);
+        regfree(&regex_cadeia);
+        return "NUMERO";
+    }
+
+    // Verifica se a expressão é uma CADEIA
+    reti = regexec(&regex_cadeia, expressao, 0, NULL, 0);
+    if (!reti) {
+        regfree(&regex_numero);
+        regfree(&regex_cadeia);
+        return "CADEIA";
+    }
+
+    // Libera a memória das expressões regulares
+    regfree(&regex_numero);
+    regfree(&regex_cadeia);
+
+    return "DESCONHECIDO";
 }
 
 int busca_valor_variavel_numero(char *nome_var) {
@@ -148,6 +203,61 @@ char* remove_espacos(const char* str) {
     return nova_str;
 }
 
+
+char* remove_espacos_fora_aspas( char* str) {
+    int len = strlen(str);
+    char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
+    if (nova_str == NULL) {
+        fprintf(stderr, "Erro de alocação de memória\n");
+        exit(1);
+    }
+
+    int i, j = 0;
+    int dentro_aspas = 0; // Flag para rastrear se estamos dentro de aspas
+
+    for (i = 0; i < len; i++) {
+        if (str[i] == '"') {
+            dentro_aspas = !dentro_aspas; // Alterna o estado dentro/fora de aspas
+        }
+
+        if (dentro_aspas || (!dentro_aspas && str[i] != ' ')) {
+            nova_str[j++] = str[i];
+        }
+    }
+    nova_str[j] = '\0'; // Termina a nova string
+
+    return nova_str;
+}
+
+char* concatenar_strings(char* str1, char* str2) {
+    int len1 = strlen(str1);
+    int len2 = strlen(str2);
+
+    // Remover a aspa final de str1 e a aspa inicial de str2
+    char* str1_sem_aspas = strndup(str1, len1 - 1);
+    char* str2_sem_aspas = strdup(str2 + 1);
+
+    // Alocar memória para a string resultante
+    char* resultado = (char*)malloc(len1 + len2 - 1); // -1 para compensar as aspas removidas
+    if (resultado == NULL) {
+        fprintf(stderr, "Erro de alocação de memória\n");
+        exit(1);
+    }
+
+    // Construir a string resultante
+    strcpy(resultado, "\"");
+    strcat(resultado, str1_sem_aspas);
+    strcat(resultado, str2_sem_aspas);
+    strcat(resultado, "\"");
+
+    // Liberar a memória alocada para as strings temporárias
+    free(str1_sem_aspas);
+    free(str2_sem_aspas);
+
+    return resultado;
+}
+
+
 void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
     if (pilha_de_escopos == NULL) {
         printf("Erro: Pilha de escopos não inicializada\n");
@@ -175,6 +285,32 @@ void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor) {
     nova_variavel->proximo = pilha_de_escopos->variaveis;
     pilha_de_escopos->variaveis = nova_variavel;
 }
+
+void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor) {
+    Escopo *escopo_atual = pilha_de_escopos;
+    while (escopo_atual != NULL) {
+        Variavel *var_atual = escopo_atual->variaveis;
+        while (var_atual != NULL) {
+            if (strcmp(var_atual->nome, nome) == 0) {
+                free(var_atual->tipo);
+                var_atual->tipo = strdup(tipo);
+                if (strcmp(tipo, "NUMERO") == 0) {
+                    var_atual->tipo_valor = TIPO_NUMERO;
+                    var_atual->valor.num_valor = num_valor;
+                } else if (strcmp(tipo, "CADEIA") == 0) {
+                    var_atual->tipo_valor = TIPO_CADEIA;
+                    free(var_atual->valor.str_valor);
+                    var_atual->valor.str_valor = strdup(str_valor);
+                }
+                return;
+            }
+            var_atual = var_atual->proximo;
+        }
+        escopo_atual = escopo_atual->proximo;
+    }
+    printf("Erro: Variável %s não encontrada.\n", nome);
+}
+
 
 void imprimir_pilha() {
     printf("Pilha = [");
@@ -210,11 +346,14 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 {
 	int number;
     char *string;
+    //Expressao *expr;
 }
 
 %token BLOCO_INICIO BLOCO_FIM IDENTIFICADOR CADEIA
 %token NUMERO
 %token TIPO_NUMERO TIPO_CADEIA PRINT
+
+//%type <expr> expressao
 
 %%
 
@@ -255,161 +394,284 @@ linha_declaracao:
     }
     ;
 
-    lista_declaracao_cadeia:
-        declaracao_cadeia
-        | lista_declaracao_cadeia ',' declaracao_cadeia
-        ;
-    declaracao_cadeia:
-        IDENTIFICADOR '=' expressao_cadeia { 
-            char* s1 = remove_espacos($1.string);
-            if (verifica_variavel_existe_pilha(s1) == NULL) {
-                adicionar_variavel_cadeia("CADEIA", s1, $3.string);
-            }
-            else {
-                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
-            }
+lista_declaracao_cadeia:
+    declaracao_cadeia
+    | lista_declaracao_cadeia ',' declaracao_cadeia
+    ;
+declaracao_cadeia:
+    IDENTIFICADOR '=' expressao_cadeia { 
+        char* s1 = remove_espacos($1.string);
+        if (verifica_variavel_existe_pilha(s1) == NULL) {
+            adicionar_variavel_cadeia("CADEIA", s1, $3.string);
         }
-        | IDENTIFICADOR {
-            char* s1 = remove_espacos($1.string); 
-            if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-                adicionar_variavel_cadeia("CADEIA", s1, "");
-            }
-            else {
-                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
-            }
+        else {
+            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
         }
-        ;
-    expressao_cadeia:
-        CADEIA { 
-            $$.string = $1.string; 
-        }
-        | IDENTIFICADOR { 
-            char* s1 = remove_espacos($1.string);
-            if(verifica_variavel_existe_pilha(s1) != NULL){
-                if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
-                    $$.string = busca_valor_variavel_cadeia(s1); 
-                }
-                else{
-                    printf("Erro: Tipos incompativeis\n");
-                }
-            }
-        }
-        | expressao_cadeia '+' CADEIA {
-            size_t len1 = strlen($1.string);
-            size_t len2 = strlen($3.string);
-            char* result = (char*)malloc(len1 + len2 + 1);
-
-            strcpy(result, $1.string);
-            strcat(result, $3.string);
- 
-            $$.string  = result; 
-        }
-        | expressao_cadeia '+' IDENTIFICADOR {
-            char* s3 = remove_espacos($3.string);
-            if(verifica_variavel_existe_pilha(s3) != NULL){
-                if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
-                    char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
-
-                    size_t len1 = strlen($1.string);
-                    size_t len2 = strlen(valor_variavel_s3);
-                    char* result = (char*)malloc(len1 + len2 + 1);
-
-                    strcpy(result, $1.string);
-                    strcat(result, valor_variavel_s3);
-
-                    $$.string  = result;
-                }
-                else{
-                    printf("Erro: Tipos incompativeis\n");
-                }
-            }
-            else{
-                printf("Erro: Variavel não declarada\n");
-            }
-        }
-
-    lista_declaracao_numero:
-        declaracao_numero
-        | lista_declaracao_numero ',' declaracao_numero
-        ;
-    declaracao_numero:
-        IDENTIFICADOR '=' expressao_numero { 
-            char* s1 = remove_espacos($1.string);
-            if (verifica_variavel_existe_pilha(s1) == NULL) {
-                adicionar_variavel_numero("NUMERO", s1, $3.number);
-            }
-            else {
-                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
-            }
-        }
-        | IDENTIFICADOR {
-            char* s1 = remove_espacos($1.string); 
-            if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-                adicionar_variavel_numero("NUMERO", s1, 0);
-            }
-            else {
-                printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
-            }
-        }
-        ;
-    expressao_numero:
-        NUMERO { 
-            $$.number = $1.number; 
-        }
-        | IDENTIFICADOR { 
-            char* s1 = remove_espacos($1.string);
-            if(verifica_variavel_existe_pilha(s1) != NULL){
-                if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
-                    $$.number = busca_valor_variavel_numero(s1); 
-                }
-                else{
-                    printf("\n\n==== %s ====\n\n", verifica_tipo_variavel(s1));
-                    printf("Erro: Tipos incompativeis\n");
-                }
-            }
-        }
-        | expressao_numero '+' NUMERO { 
-            $$.number  = $1.number + $3.number; 
-        }
-        | expressao_numero '+' IDENTIFICADOR {
-            char* s3 = remove_espacos($3.string);
-            if(verifica_variavel_existe_pilha(s3) != NULL){
-                if(strcmp(verifica_tipo_variavel(s3), "NUMERO") == 0){
-                    int valor_variavel_s3 = busca_valor_variavel_numero(s3);
-                    $$.number  = $1.number + valor_variavel_s3; 
-                }
-                else{
-                    printf("Erro: Tipos incompativeis\n");
-                }
-            }
-            else{
-                printf("Erro: Variavel não declarada\n");
-            }
-        }
-        ;
-
-linha_atribuicao:
-    IDENTIFICADOR '=' lista_expressao  { 
-        printf("linha_atribuicao\n"); 
     }
-    | IDENTIFICADOR '=' CADEIA  { 
-        printf("linha_atribuicao\n"); 
+    | IDENTIFICADOR {
+        char* s1 = remove_espacos($1.string); 
+        if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
+            adicionar_variavel_cadeia("CADEIA", s1, "");
+        }
+        else {
+            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+        }
     }
     ;
+expressao_cadeia:
+    CADEIA { 
+        char* s1 = remove_espacos_fora_aspas($1.string);
+        $$.string = s1;
+    }
+    | IDENTIFICADOR { 
+        char* s1 = remove_espacos($1.string);
+        if(verifica_variavel_existe_pilha(s1) != NULL){
+            if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
+                $$.string = busca_valor_variavel_cadeia(s1); 
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+    }
+    | expressao_cadeia '+' CADEIA {
+        char* s3 = remove_espacos_fora_aspas($3.string);
+        size_t len1 = strlen($1.string);
+        size_t len2 = strlen(s3);
+        char* result = (char*)malloc(len1 + len2 + 1);
 
-lista_expressao:
-    expressao
-    | lista_expressao '+' expressao
+        strcpy(result, $1.string);
+        strcat(result, s3);
+
+        $$.string  = result;
+
+        //$$.string  = concatenar_strings($1.string, $3.string);
+    }
+    | expressao_cadeia '+' IDENTIFICADOR {
+        char* s3 = remove_espacos($3.string);
+        if(verifica_variavel_existe_pilha(s3) != NULL){
+            if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
+                char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+
+                size_t len1 = strlen($1.string);
+                size_t len2 = strlen(valor_variavel_s3);
+                char* result = (char*)malloc(len1 + len2 + 1);
+
+                strcpy(result, $1.string);
+                strcat(result, valor_variavel_s3);
+
+                $$.string  = result;
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+        else{
+            printf("Erro: Variavel não declarada\n");
+        }
+    }
+lista_declaracao_numero:
+    declaracao_numero
+    | lista_declaracao_numero ',' declaracao_numero
     ;
-
-expressao:
+declaracao_numero:
+    IDENTIFICADOR '=' expressao_numero { 
+        char* s1 = remove_espacos($1.string);
+        if (verifica_variavel_existe_pilha(s1) == NULL) {
+            adicionar_variavel_numero("NUMERO", s1, $3.number);
+        }
+        else {
+            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+        }
+    }
+    | IDENTIFICADOR {
+        char* s1 = remove_espacos($1.string); 
+        if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
+            adicionar_variavel_numero("NUMERO", s1, 0);
+        }
+        else {
+            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+        }
+    }
+    ;
+expressao_numero:
     NUMERO { 
         $$.number = $1.number; 
     }
     | IDENTIFICADOR { 
-        $$.number = 0; 
+        char* s1 = remove_espacos($1.string);
+        if(verifica_variavel_existe_pilha(s1) != NULL){
+            if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
+                $$.number = busca_valor_variavel_numero(s1); 
+            }
+            else{
+                //$$.string = busca_valor_variavel_numero(s1); 
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+    }
+    | expressao_numero '+' NUMERO { 
+        $$.number  = $1.number + $3.number; 
+    }
+    | expressao_numero '+' IDENTIFICADOR {
+        char* s3 = remove_espacos($3.string);
+        if(verifica_variavel_existe_pilha(s3) != NULL){
+            if(strcmp(verifica_tipo_variavel(s3), "NUMERO") == 0){
+                int valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                $$.number  = $1.number + valor_variavel_s3; 
+            }
+            else{
+                //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                //$$.string  = $1.number + valor_variavel_s3; 
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+        else{
+            printf("Erro: Variavel não declarada\n");
+        }
     }
     ;
+
+linha_atribuicao:
+    IDENTIFICADOR '=' expressao_numero {
+        printf("\n%d\n", $3.number);
+        char* s1 = remove_espacos($1.string);
+        if (verifica_variavel_existe_pilha(s1) != NULL) {
+            char* tipo_variavel = verifica_tipo_variavel(s1);
+            if (strcmp(tipo_variavel, "NUMERO") == 0) {
+                if (verifica_variavel_existe_escopo_atual(s1) == NULL){
+                    adicionar_variavel_numero("NUMERO", s1, $3.number);
+                }
+                else {
+                    atualiza_variavel("NUMERO", s1, $3.number, "");
+                }
+            }
+            else {
+                printf("Erro: Tipos incompativeis");
+            }
+        } else {
+            printf("Erro: Variavel '%s' não declarada\n", s1);
+        }
+    }
+    | IDENTIFICADOR '=' expressao_cadeia {
+        printf("\n%s === \n", $3.string);
+        char* s1 = remove_espacos($1.string);
+        if (verifica_variavel_existe_pilha(s1) != NULL) {
+            char* tipo_variavel = verifica_tipo_variavel(s1);
+            if (strcmp(tipo_variavel, "CADEIA") == 0) {
+                if (verifica_variavel_existe_escopo_atual(s1) == NULL) {
+                    adicionar_variavel_cadeia("CADEIA", s1, $3.string);
+                }
+                else {
+                    atualiza_variavel("CADEIA", s1, 0, $3.string);
+                }
+            }
+            else {
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }else {
+            printf("Erro: Variavel '%s' não declarada\n", s1);
+        }
+    }
+    ;
+expressao_numero_atribuicao:
+    NUMERO { 
+        $$.number = $1.number; 
+    }
+    | IDENTIFICADOR { 
+        char* s1 = remove_espacos($1.string);
+        if(verifica_variavel_existe_pilha(s1) != NULL){
+            if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
+                $$.number = busca_valor_variavel_numero(s1); 
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+    }
+    | expressao_numero '+' NUMERO { 
+        $$.number  = $1.number + $3.number; 
+    }
+    | expressao_numero '+' IDENTIFICADOR {
+        char* s3 = remove_espacos($3.string);
+        if(verifica_variavel_existe_pilha(s3) != NULL){
+            if(strcmp(verifica_tipo_variavel(s3), "NUMERO") == 0){
+                int valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                $$.number  = $1.number + valor_variavel_s3; 
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+        else{
+            printf("Erro: Variavel não declarada\n");
+        }
+    }
+    ;
+expressao_cadeia_atribuicao:
+    CADEIA { 
+        char* s1 = remove_espacos_fora_aspas($1.string);
+        $$.string = s1;
+    }
+    | IDENTIFICADOR { 
+        char* s1 = remove_espacos($1.string);
+        if(verifica_variavel_existe_pilha(s1) != NULL){
+            if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
+                $$.string = busca_valor_variavel_cadeia(s1); 
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+    }
+    | expressao_cadeia '+' CADEIA {
+        char* s3 = remove_espacos_fora_aspas($3.string);
+        size_t len1 = strlen($1.string);
+        size_t len2 = strlen(s3);
+        char* result = (char*)malloc(len1 + len2 + 1);
+
+        strcpy(result, $1.string);
+        strcat(result, s3);
+
+        $$.string  = result;
+
+        //$$.string  = concatenar_strings($1.string, $3.string);
+    }
+    | expressao_cadeia '+' IDENTIFICADOR {
+        char* s3 = remove_espacos($3.string);
+        if(verifica_variavel_existe_pilha(s3) != NULL){
+            if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
+                char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+
+                size_t len1 = strlen($1.string);
+                size_t len2 = strlen(valor_variavel_s3);
+                char* result = (char*)malloc(len1 + len2 + 1);
+
+                strcpy(result, $1.string);
+                strcat(result, valor_variavel_s3);
+
+                $$.string  = result;
+            }
+            else{
+                printf("Erro: Tipos incompativeis\n");
+            }
+        }
+        else{
+            printf("Erro: Variavel não declarada\n");
+        }
+    }
+
+/*
+expressao:
+    expressao_numero {
+        $$.number = $1.number;
+    }
+    | expressao_cadeia {
+        printf("\nPASSOU AQUI\n");
+        $$.string = $1.string;
+    }
+    ;
+*/
 
 linha_print:
     PRINT IDENTIFICADOR  { 

@@ -1,5 +1,7 @@
 BLOCO _principal_
 NUMERO a = 10;
 NUMERO b = 20 + 30;
+NUMERO c;
+c = a + b;
 
 FIM _principal_
