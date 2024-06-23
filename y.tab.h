@@ -13,7 +13,7 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
-#line 345 "teste.y"
+#line 342 "teste.y"
 typedef union 
 {
 	int number;

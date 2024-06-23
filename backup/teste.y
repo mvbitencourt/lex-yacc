@@ -33,7 +33,6 @@ void empilhar_escopo() {
     novo_escopo->variaveis = NULL;
     novo_escopo->proximo = pilha_de_escopos;
     pilha_de_escopos = novo_escopo;
-    printf("Escopo criado\n");
 }
 
 void desempilhar_escopo() {
@@ -41,7 +40,6 @@ void desempilhar_escopo() {
         Escopo *escopo_antigo = pilha_de_escopos;
         pilha_de_escopos = pilha_de_escopos->proximo;
         free(escopo_antigo);
-        printf("Escopo removido\n");
     } else {
         printf("Erro: Tentativa de remover escopo inexistente\n");
     }
@@ -49,7 +47,6 @@ void desempilhar_escopo() {
 
 void inicializar_pilha_de_escopos() {
     pilha_de_escopos = NULL;
-    printf("Pilha de escopos inicializada\n");
 }
 
 Variavel* verifica_variavel_existe_pilha(char *identificador) {
@@ -358,7 +355,7 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 %%
 
 programa:
-    programa linha {linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();}
+    programa linha {linha_indice++; /*printf("[%d] ", linha_indice); imprimir_pilha();*/}
     | /* vazio */
     ;
 
@@ -373,25 +370,19 @@ linha:
 
 linha_inicio_bloco:
     BLOCO_INICIO {
-        printf("linha_inicio_bloco --- "); 
         empilhar_escopo();
     }
     ;
 
 linha_fim_bloco:
     BLOCO_FIM {
-        printf("linha_fim_bloco --- "); 
         desempilhar_escopo();
     }
     ;
 
 linha_declaracao:
-    TIPO_CADEIA lista_declaracao_cadeia  { 
-        printf("linha_declaracao\n"); 
-    }
-    | TIPO_NUMERO lista_declaracao_numero  { 
-        printf("linha_declaracao\n"); 
-    }
+    TIPO_CADEIA lista_declaracao_cadeia
+    | TIPO_NUMERO lista_declaracao_numero
     ;
 
 lista_declaracao_cadeia:
@@ -405,7 +396,12 @@ declaracao_cadeia:
             adicionar_variavel_cadeia("CADEIA", s1, $3.string);
         }
         else {
-            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            if (verifica_variavel_existe_escopo_atual(s1) == NULL){
+                    adicionar_variavel_cadeia("CADEIA", s1, $3.string);
+            }
+            else {
+                printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+            }
         }
     }
     | IDENTIFICADOR {
@@ -414,7 +410,12 @@ declaracao_cadeia:
             adicionar_variavel_cadeia("CADEIA", s1, "");
         }
         else {
-            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            if (verifica_variavel_existe_escopo_atual(s1) == NULL){
+                    adicionar_variavel_cadeia("CADEIA", s1, "");
+            }
+            else {
+                printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+            }
         }
     }
     ;
@@ -430,7 +431,7 @@ expressao_cadeia:
                 $$.string = busca_valor_variavel_cadeia(s1); 
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
     }
@@ -463,13 +464,14 @@ expressao_cadeia:
                 $$.string  = result;
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
         else{
-            printf("Erro: Variavel não declarada\n");
+            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
         }
     }
+    ;
 lista_declaracao_numero:
     declaracao_numero
     | lista_declaracao_numero ',' declaracao_numero
@@ -481,7 +483,12 @@ declaracao_numero:
             adicionar_variavel_numero("NUMERO", s1, $3.number);
         }
         else {
-            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            if (verifica_variavel_existe_escopo_atual(s1) == NULL){
+                adicionar_variavel_numero("NUMERO", s1, $3.number);
+            }
+            else {
+                printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+            }
         }
     }
     | IDENTIFICADOR {
@@ -490,7 +497,12 @@ declaracao_numero:
             adicionar_variavel_numero("NUMERO", s1, 0);
         }
         else {
-            printf("Erro: Variavel '%s' já declarada no escopo\n", s1);
+            if (verifica_variavel_existe_escopo_atual(s1) == NULL){
+                adicionar_variavel_numero("NUMERO", s1, 0);
+            }
+            else {
+                printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+            }
         }
     }
     ;
@@ -506,7 +518,7 @@ expressao_numero:
             }
             else{
                 //$$.string = busca_valor_variavel_numero(s1); 
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
     }
@@ -523,18 +535,17 @@ expressao_numero:
             else{
                 //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
                 //$$.string  = $1.number + valor_variavel_s3; 
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
         else{
-            printf("Erro: Variavel não declarada\n");
+            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
         }
     }
     ;
 
 linha_atribuicao:
-    IDENTIFICADOR '=' expressao_numero {
-        printf("\n%d\n", $3.number);
+    IDENTIFICADOR '=' expressao_numero_atribuicao {
         char* s1 = remove_espacos($1.string);
         if (verifica_variavel_existe_pilha(s1) != NULL) {
             char* tipo_variavel = verifica_tipo_variavel(s1);
@@ -547,14 +558,13 @@ linha_atribuicao:
                 }
             }
             else {
-                printf("Erro: Tipos incompativeis");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         } else {
-            printf("Erro: Variavel '%s' não declarada\n", s1);
+            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
         }
     }
-    | IDENTIFICADOR '=' expressao_cadeia {
-        printf("\n%s === \n", $3.string);
+    | IDENTIFICADOR '=' expressao_cadeia_atribuicao {
         char* s1 = remove_espacos($1.string);
         if (verifica_variavel_existe_pilha(s1) != NULL) {
             char* tipo_variavel = verifica_tipo_variavel(s1);
@@ -567,10 +577,10 @@ linha_atribuicao:
                 }
             }
             else {
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }else {
-            printf("Erro: Variavel '%s' não declarada\n", s1);
+            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
         }
     }
     ;
@@ -585,7 +595,8 @@ expressao_numero_atribuicao:
                 $$.number = busca_valor_variavel_numero(s1); 
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                //$$.string = busca_valor_variavel_numero(s1); 
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
     }
@@ -600,11 +611,13 @@ expressao_numero_atribuicao:
                 $$.number  = $1.number + valor_variavel_s3; 
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                //$$.string  = $1.number + valor_variavel_s3; 
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
         else{
-            printf("Erro: Variavel não declarada\n");
+            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
         }
     }
     ;
@@ -620,7 +633,7 @@ expressao_cadeia_atribuicao:
                 $$.string = busca_valor_variavel_cadeia(s1); 
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
     }
@@ -653,13 +666,14 @@ expressao_cadeia_atribuicao:
                 $$.string  = result;
             }
             else{
-                printf("Erro: Tipos incompativeis\n");
+                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
             }
         }
         else{
-            printf("Erro: Variavel não declarada\n");
+            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
         }
     }
+    ;
 
 /*
 expressao:
@@ -675,7 +689,19 @@ expressao:
 
 linha_print:
     PRINT IDENTIFICADOR  { 
-        printf("linha_print\n"); 
+        char* s2 = remove_espacos($2.string);
+
+        if(verifica_variavel_existe_pilha(s2) != NULL){
+            if(strcmp(verifica_tipo_variavel(s2), "NUMERO") == 0){
+                printf("[%d] %d\n", linha_indice, busca_valor_variavel_numero(s2));
+            }
+            else{
+                printf("[%d] %s\n", linha_indice, busca_valor_variavel_cadeia(s2));
+            }
+        }
+        else {
+            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
+        }
     }
     ;
 
