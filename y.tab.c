@@ -893,10 +893,10 @@ static const short yyrhs[] = {    15,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   399,   401,   404,   406,   407,   408,   409,   410,   413,   419,
-   425,   427,   430,   432,   434,   454,   474,   479,   490,   503,
-   529,   531,   533,   553,   573,   577,   589,   592,   611,   652,
-   656,   660,   680,   689,   709,   745
+   399,   404,   407,   409,   410,   411,   412,   413,   416,   422,
+   428,   430,   433,   435,   437,   457,   477,   482,   493,   506,
+   532,   534,   536,   556,   576,   580,   592,   595,   614,   655,
+   659,   663,   683,   692,   712,   748
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
@@ -1463,22 +1463,25 @@ YYLABEL(yyreduce)
 
 case 1:
 #line 400 "teste.y"
-{linha_indice++; /*printf("[%d] ", linha_indice); imprimir_pilha();*/;
+{
+        linha_indice++; 
+        /*printf("[%d] ", linha_indice); imprimir_pilha();*/
+    ;
     break;}
 case 9:
-#line 414 "teste.y"
+#line 417 "teste.y"
 {
         empilhar_escopo();
     ;
     break;}
 case 10:
-#line 420 "teste.y"
+#line 423 "teste.y"
 {
         desempilhar_escopo();
     ;
     break;}
 case 15:
-#line 435 "teste.y"
+#line 438 "teste.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
@@ -1500,7 +1503,7 @@ case 15:
     ;
     break;}
 case 16:
-#line 454 "teste.y"
+#line 457 "teste.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
@@ -1522,14 +1525,14 @@ case 16:
     ;
     break;}
 case 17:
-#line 475 "teste.y"
+#line 478 "teste.y"
 { 
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 18:
-#line 479 "teste.y"
+#line 482 "teste.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1543,7 +1546,7 @@ case 18:
     ;
     break;}
 case 19:
-#line 490 "teste.y"
+#line 493 "teste.y"
 {
         char* s1 = retira_ultimo_digito(yyvsp[-2].string);
         char* s3 = remove_espacos_fora_aspas(yyvsp[0].string);
@@ -1559,7 +1562,7 @@ case 19:
     ;
     break;}
 case 20:
-#line 503 "teste.y"
+#line 506 "teste.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1587,7 +1590,7 @@ case 20:
     ;
     break;}
 case 23:
-#line 534 "teste.y"
+#line 537 "teste.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
@@ -1609,7 +1612,7 @@ case 23:
     ;
     break;}
 case 24:
-#line 553 "teste.y"
+#line 556 "teste.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
@@ -1631,13 +1634,13 @@ case 24:
     ;
     break;}
 case 25:
-#line 574 "teste.y"
+#line 577 "teste.y"
 { 
         yyval.number = yyvsp[0].number; 
     ;
     break;}
 case 26:
-#line 577 "teste.y"
+#line 580 "teste.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1652,13 +1655,13 @@ case 26:
     ;
     break;}
 case 27:
-#line 589 "teste.y"
+#line 592 "teste.y"
 { 
         yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
     ;
     break;}
 case 28:
-#line 592 "teste.y"
+#line 595 "teste.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1678,7 +1681,7 @@ case 28:
     ;
     break;}
 case 29:
-#line 612 "teste.y"
+#line 615 "teste.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[0].string);
         char* s1 = remove_espacos(yyvsp[-2].string);
@@ -1721,20 +1724,20 @@ case 29:
     ;
     break;}
 case 30:
-#line 653 "teste.y"
+#line 656 "teste.y"
 {
         yyval.string = numero_para_string(yyvsp[0].number);
     ;
     break;}
 case 31:
-#line 656 "teste.y"
+#line 659 "teste.y"
 {
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 32:
-#line 660 "teste.y"
+#line 663 "teste.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string);
         if (verifica_variavel_existe_pilha(s1) != NULL) {
@@ -1757,7 +1760,7 @@ case 32:
     ;
     break;}
 case 33:
-#line 680 "teste.y"
+#line 683 "teste.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "NUMERO") == 0 ) {
@@ -1769,7 +1772,7 @@ case 33:
     ;
     break;}
 case 34:
-#line 689 "teste.y"
+#line 692 "teste.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "CADEIA") == 0) {
@@ -1792,7 +1795,7 @@ case 34:
     ;
     break;}
 case 35:
-#line 709 "teste.y"
+#line 712 "teste.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         char* s3 = remove_espacos(yyvsp[0].string);
@@ -1830,7 +1833,7 @@ case 35:
     ;
     break;}
 case 36:
-#line 746 "teste.y"
+#line 749 "teste.y"
 { 
         char* s2 = remove_espacos(yyvsp[0].string);
 
@@ -2051,7 +2054,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 763 "teste.y"
+#line 766 "teste.y"
 
 
 void yyerror(const char *s) {

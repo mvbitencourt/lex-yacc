@@ -3,5 +3,3 @@ yacc -d teste.y
 gcc -c lex.yy.c y.tab.c
 gcc -o exeteste lex.yy.o y.tab.o -lfl
 ./exeteste < input.txt > output.txt
-
-BLOCO _principal_ a = 10 FIM _principal_

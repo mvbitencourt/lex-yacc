@@ -397,7 +397,10 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 %%
 
 programa:
-    programa linha {linha_indice++; /*printf("[%d] ", linha_indice); imprimir_pilha();*/}
+    programa linha {
+        linha_indice++; 
+        /*printf("[%d] ", linha_indice); imprimir_pilha();*/
+    }
     | /* vazio */
     ;
 

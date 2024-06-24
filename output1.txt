@@ -1,0 +1,11 @@
+[3] 50
+[4] 10
+[6] Erro: tipos não compatíveis
+[7] "Ola mundo"
+[12] 50
+[13] 45
+[17] "Compiladores eh massa"
+[18] Erro: tipos não compatíveis
+[20] "Bloco2"
+[21] 45
+[23] 55

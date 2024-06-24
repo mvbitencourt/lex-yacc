@@ -1,9 +1,0 @@
-Pilha de escopos inicializada
-linha_inicio_bloco --- Escopo criado
-[1] Pilha = [[]]
-linha_declaracao
-[2] Pilha = [[[NUMERO, a, 10]]]
-linha_declaracao
-[3] Pilha = [[[NUMERO, b, 50], [NUMERO, a, 10]]]
-linha_fim_bloco --- Escopo removido
-[4] Pilha = []
