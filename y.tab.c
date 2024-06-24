@@ -146,7 +146,7 @@ void desempilhar_escopo() {
         pilha_de_escopos = pilha_de_escopos->proximo;
         free(escopo_antigo);
     } else {
-        printf("Erro: Tentativa de remover escopo inexistente\n");
+        printf("Erro: tentativa de remover escopo inexistente\n");
     }
 }
 
@@ -197,7 +197,7 @@ char* verifica_tipo_variavel(char *nome_var) {
         }
         escopo_atual = escopo_atual->proximo;
     }
-    printf("Erro: Variável %s não encontrada\n", nome_var);
+    printf("Erro: variável %s não encontrada\n", nome_var);
     return NULL; // Retornar NULL se a variável não for encontrada
 }
 
@@ -210,7 +210,7 @@ int busca_valor_variavel_numero(char *nome_var) {
                 if (var_atual->tipo_valor == TIPO_NUMERO) {
                     return var_atual->valor.num_valor;
                 } else {
-                    printf("Erro: Variável %s não é do tipo NUMERO\n", nome_var);
+                    printf("Erro: variável %s não é do tipo NUMERO\n", nome_var);
                     return 0; // Valor padrão ou tratar erro de outra forma
                 }
             }
@@ -218,7 +218,7 @@ int busca_valor_variavel_numero(char *nome_var) {
         }
         escopo_atual = escopo_atual->proximo;
     }
-    printf("Erro: Variável %s não encontrada\n", nome_var);
+    printf("Erro: variável %s não encontrada\n", nome_var);
     return 0; // Valor padrão se a variável não for encontrada
 }
 
@@ -231,7 +231,7 @@ char* busca_valor_variavel_cadeia(char *nome_var) {
                 if (var_atual->tipo_valor == TIPO_CADEIA) {
                     return var_atual->valor.str_valor;
                 } else {
-                    printf("Erro: Variável %s não é do tipo CADEIA\n", nome_var);
+                    printf("Erro: variável %s não é do tipo CADEIA\n", nome_var);
                     return NULL; // Valor padrão ou tratar erro de outra forma
                 }
             }
@@ -239,7 +239,7 @@ char* busca_valor_variavel_cadeia(char *nome_var) {
         }
         escopo_atual = escopo_atual->proximo;
     }
-    printf("Erro: Variável %s não encontrada\n", nome_var);
+    printf("Erro: variável %s não encontrada\n", nome_var);
     return NULL; // Valor padrão se a variável não for encontrada
 }
 
@@ -306,7 +306,7 @@ char* remove_espacos_fora_aspas( char* str) {
 
 void adicionar_variavel_numero(char *tipo, char *nome, int num_valor, char *tipo_linha) {
     if (pilha_de_escopos == NULL) {
-        printf("Erro: Pilha de escopos não inicializada\n");
+        printf("Erro: pilha de escopos não inicializada\n");
         return;
     }
     Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
@@ -323,7 +323,7 @@ void adicionar_variavel_numero(char *tipo, char *nome, int num_valor, char *tipo
 
 void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor, char *tipo_linha) {
     if (pilha_de_escopos == NULL) {
-        printf("Erro: Pilha de escopos não inicializada\n");
+        printf("Erro: pilha de escopos não inicializada\n");
         return;
     }
     Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
@@ -367,7 +367,7 @@ void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor, c
         }
         escopo_atual = escopo_atual->proximo;
     }
-    printf("Erro: Variável %s não encontrada.\n", nome);
+    printf("Erro: variável %s não encontrada.\n", nome);
 }
 
 void imprimir_pilha() {
@@ -1463,7 +1463,7 @@ YYLABEL(yyreduce)
 
 case 1:
 #line 400 "teste.y"
-{linha_indice++; printf("[%d] ", linha_indice); imprimir_pilha();;
+{linha_indice++; /*printf("[%d] ", linha_indice); imprimir_pilha();*/;
     break;}
 case 9:
 #line 414 "teste.y"
@@ -1493,7 +1493,7 @@ case 15:
                     atualiza_variavel("CADEIA", s1, 0, yyvsp[0].string, "linha_declaracao");
                 }
                 else{
-                    printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
                 }
             }
         }
@@ -1515,7 +1515,7 @@ case 16:
                     atualiza_variavel("CADEIA", s1, 0, "", "linha_declaracao");
                 }
                 else{
-                    printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
                 }
             }
         }
@@ -1537,7 +1537,7 @@ case 18:
                 yyval.string = busca_valor_variavel_cadeia(s1); 
             }
             else{
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
     ;
@@ -1578,11 +1578,11 @@ case 20:
                 yyval.string  = result;
             }
             else{
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
         else{
-            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
+            printf("[%d] Erro: variável não declarada\n", linha_indice);
         }
     ;
     break;}
@@ -1602,7 +1602,7 @@ case 23:
                     atualiza_variavel("NUMERO", s1, yyvsp[0].number, "", "linha_declaracao");
                 }
                 else{
-                    printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
                 }
             }
         }
@@ -1624,7 +1624,7 @@ case 24:
                     atualiza_variavel("NUMERO", s1, 0, "", "linha_declaracao");
                 }
                 else{
-                    printf("[%d] Erro: Variavel '%s' já declarada no escopo\n", linha_indice, s1);
+                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
                 }
             }
         }
@@ -1646,7 +1646,7 @@ case 26:
             }
             else{
                 //$$.string = busca_valor_variavel_numero(s1); 
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
     ;
@@ -1669,11 +1669,11 @@ case 28:
             else{
                 //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
                 //$$.string  = $1.number + valor_variavel_s3; 
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
         else{
-            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
+            printf("[%d] Erro: variável não declarada\n", linha_indice);
         }
     ;
     break;}
@@ -1708,15 +1708,15 @@ case 29:
                         free(nova_cadeia);
                     }
                     else{
-                        printf("[%d] Erro: Tipo invalido\n", linha_indice);
+                        printf("[%d] Erro: tipo inválido\n", linha_indice);
                     }
                 }
             }
             else {
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         } else {
-            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
+            printf("[%d] Erro: variável '%s' não declarada\n", linha_indice, s1);
         }
     ;
     break;}
@@ -1748,11 +1748,11 @@ case 32:
                 yyval.string = valor_variavel_s1;
             }
             else {
-                printf("[%d] Erro: Variavel '%s' com tipo inválido\n", linha_indice, s1);
+                printf("[%d] Erro: variável '%s' com tipo inválido\n", linha_indice, s1);
             }
         } 
         else {
-            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
+            printf("[%d] Erro: variável '%s' não declarada\n", linha_indice, s1);
         }
     ;
     break;}
@@ -1820,11 +1820,11 @@ case 35:
                 }
             }
             else {
-                printf("[%d] Erro: Tipos incompatíveis\n", linha_indice);
+                printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
         else {
-            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s3);
+            printf("[%d] Erro: variável '%s' não declarada\n", linha_indice, s3);
         }
 
     ;
@@ -1843,7 +1843,7 @@ case 36:
             }
         }
         else {
-            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
+            printf("[%d] Erro: variável não declarada\n", linha_indice);
         }
     ;
     break;}
