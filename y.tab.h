@@ -13,12 +13,11 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
-#line 328 "teste.y"
+#line 387 "teste.y"
 typedef union 
 {
 	int number;
     char *string;
-    //Expressao *expr;
 } yy_parse_stype;
 #define YY_parse_STYPE yy_parse_stype
 #ifndef YY_USE_CLASS

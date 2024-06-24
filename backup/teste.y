@@ -8,7 +8,10 @@
 void yyerror(const char *s);
 int yylex(void);
 
-typedef enum { TIPO_NUMERO, TIPO_CADEIA } TipoValor;
+typedef enum { 
+    TIPO_NUMERO, 
+    TIPO_CADEIA 
+} TipoValor;
 
 typedef struct Variavel {
     char *tipo;
@@ -200,35 +203,6 @@ char* remove_espacos_fora_aspas( char* str) {
     return nova_str;
 }
 
-char* concatenar_strings(char* str1, char* str2) {
-    int len1 = strlen(str1);
-    int len2 = strlen(str2);
-
-    // Remover a aspa final de str1 e a aspa inicial de str2
-    char* str1_sem_aspas = strndup(str1, len1 - 1);
-    char* str2_sem_aspas = strdup(str2 + 1);
-
-    // Alocar memória para a string resultante
-    char* resultado = (char*)malloc(len1 + len2 - 1); // -1 para compensar as aspas removidas
-    if (resultado == NULL) {
-        fprintf(stderr, "Erro de alocação de memória\n");
-        exit(1);
-    }
-
-    // Construir a string resultante
-    strcpy(resultado, "\"");
-    strcat(resultado, str1_sem_aspas);
-    strcat(resultado, str2_sem_aspas);
-    strcat(resultado, "\"");
-
-    // Liberar a memória alocada para as strings temporárias
-    free(str1_sem_aspas);
-    free(str2_sem_aspas);
-
-    return resultado;
-}
-
-
 void adicionar_variavel_numero(char *tipo, char *nome, int num_valor, char *tipo_linha) {
     if (pilha_de_escopos == NULL) {
         printf("Erro: Pilha de escopos não inicializada\n");
@@ -321,6 +295,91 @@ void imprimir_pilha() {
     printf("]\n");
 }
 
+char* numero_para_string(int numero) {
+    // Aloca memória para armazenar a string resultante
+    // Assumindo que o número não terá mais de 50 caracteres
+    char *buffer = (char *)malloc(50 * sizeof(char));
+    if (buffer != NULL) {
+        sprintf(buffer, "%d", numero);
+    }
+    return buffer;
+}
+
+int regex_match(char *str, char *pattern) {
+    regex_t regex;
+    int reti;
+
+    // Compila a expressão regular
+    reti = regcomp(&regex, pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Não foi possível compilar a expressão regular\n");
+        return 0;
+    }
+
+    // Executa a correspondência da expressão regular
+    reti = regexec(&regex, str, 0, NULL, 0);
+    regfree(&regex);
+
+    // Retorna 1 se corresponder, 0 caso contrário
+    return !reti;
+}
+
+char* verificar_tipo(char *str) {
+    // Expressão regular para números
+    char *numero_regex = "^[+-]?[0-9]+(\\.[0-9]+)?$";
+    // Expressão regular para cadeias
+    char *cadeia_regex = "^\"([^\"]*)\"$";
+
+    if (regex_match(str, numero_regex)) {
+        return "NUMERO";
+    } else if (regex_match(str, cadeia_regex)) {
+        return "CADEIA";
+    } else {
+        return "DESCONHECIDO";
+    }
+}
+
+char* retira_ultimo_digito(char *str) {
+    size_t len = strlen(str); // Obter o comprimento da string
+
+    if (len == 0) {
+        return NULL; // Retornar NULL se a string estiver vazia
+    }
+
+    // Alocar memória para a nova string, excluindo o último caractere (a aspas de fechamento)
+    char *nova_str = (char *)malloc(len * sizeof(char));
+    if (nova_str == NULL) {
+        fprintf(stderr, "Erro ao alocar memória\n");
+        return NULL;
+    }
+
+    // Copiar a string original para a nova string, excluindo o último caractere
+    strncpy(nova_str, str, len - 1);
+    nova_str[len - 1] = '\0'; // Adicionar o caractere nulo terminador
+
+    return nova_str;
+}
+
+char* retira_primeiro_digito(char *str) {
+    size_t len = strlen(str); // Obter o comprimento da string
+
+    if (len <= 1) {
+        return NULL; // Retornar NULL se a string estiver vazia ou tiver apenas um caractere
+    }
+
+    // Alocar memória para a nova string, excluindo o primeiro caractere (a aspas de abertura)
+    char *nova_str = (char *)malloc(len * sizeof(char));
+    if (nova_str == NULL) {
+        fprintf(stderr, "Erro ao alocar memória\n");
+        return NULL;
+    }
+
+    // Copiar a string original para a nova string, excluindo o primeiro caractere
+    strcpy(nova_str, str + 1);
+
+    return nova_str;
+}
+
 int linha_indice = 0; // Declaração da variável de contagem de linhas
 
 %}
@@ -329,14 +388,11 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 {
 	int number;
     char *string;
-    //Expressao *expr;
 }
 
 %token BLOCO_INICIO BLOCO_FIM IDENTIFICADOR CADEIA
 %token NUMERO
 %token TIPO_NUMERO TIPO_CADEIA PRINT
-
-//%type <expr> expressao
 
 %%
 
@@ -432,29 +488,31 @@ expressao_cadeia:
         }
     }
     | expressao_cadeia '+' CADEIA {
+        char* s1 = retira_ultimo_digito($1.string);
         char* s3 = remove_espacos_fora_aspas($3.string);
-        size_t len1 = strlen($1.string);
+        s3 = retira_primeiro_digito(s3);
+        size_t len1 = strlen(s1);
         size_t len2 = strlen(s3);
         char* result = (char*)malloc(len1 + len2 + 1);
 
-        strcpy(result, $1.string);
+        strcpy(result, s1);
         strcat(result, s3);
 
         $$.string  = result;
-
-        //$$.string  = concatenar_strings($1.string, $3.string);
     }
     | expressao_cadeia '+' IDENTIFICADOR {
         char* s3 = remove_espacos($3.string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
             if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
+                char* s1 = retira_ultimo_digito($1.string);
                 char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+                valor_variavel_s3 = retira_primeiro_digito(valor_variavel_s3);
 
-                size_t len1 = strlen($1.string);
+                size_t len1 = strlen(s1);
                 size_t len2 = strlen(valor_variavel_s3);
                 char* result = (char*)malloc(len1 + len2 + 1);
 
-                strcpy(result, $1.string);
+                strcpy(result, s1);
                 strcat(result, valor_variavel_s3);
 
                 $$.string  = result;
@@ -550,19 +608,38 @@ expressao_numero:
     }
     ;
 
-/*linha_atribuicao:
+linha_atribuicao:
     IDENTIFICADOR '=' expressao {
+        char* tipo_expressao = verificar_tipo($3.string);
         char* s1 = remove_espacos($1.string);
-        char* s3 = transforma_para_string();
         if (verifica_variavel_existe_pilha(s1) != NULL) {
             char* tipo_variavel = verifica_tipo_variavel(s1);
-            char* tipo_expressao = verifica_tipo_expressao(s3);
-            if (strcmp(tipo_variavel, "NUMERO") == 0) {
+            tipo_expressao = verificar_tipo($3.string);
+            if (strcmp(tipo_variavel, tipo_expressao) == 0) {
                 if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                    adicionar_variavel_numero("NUMERO", s1, $3.number);
+                    if (strcmp(tipo_expressao, "NUMERO") == 0){
+                        int expressao_number = atoi($3.string);
+                        adicionar_variavel_numero("NUMERO", s1, expressao_number, "linha_atribuicao");
+                    }
+                    else if (strcmp(tipo_expressao, "CADEIA") == 0){
+                        adicionar_variavel_cadeia("CADEIA", s1, $3.string, "linha_atribuicao");
+                    }
                 }
                 else {
-                    atualiza_variavel("NUMERO", s1, $3.number, "");
+                    if (strcmp(tipo_expressao, "NUMERO") == 0){
+                        int expressao_number = atoi($3.string);
+                        atualiza_variavel("NUMERO", s1, expressao_number, "", "linha_declaracao");
+                    }
+                    else if (strcmp(tipo_expressao, "CADEIA") == 0){
+                        char* nova_cadeia;
+                        nova_cadeia = (char *)malloc((strlen($3.string) + 1) * sizeof(char));
+                        strcpy(nova_cadeia, $3.string);
+                        atualiza_variavel("CADEIA", s1, 0, nova_cadeia, "linha_declaracao");
+                        free(nova_cadeia);
+                    }
+                    else{
+                        printf("[%d] Erro: Tipo invalido\n", linha_indice);
+                    }
                 }
             }
             else {
@@ -573,145 +650,97 @@ expressao_numero:
         }
     }
 expressao:
-    expressao_numero {
-        $$.number = $1.number;
+    NUMERO {
+        $$.string = numero_para_string($1.number);
     }
-    | expressao_cadeia {
-        $$.string = $1.string;
-    }
-    ;*/
-
-linha_atribuicao:
-    IDENTIFICADOR '=' expressao_numero_atribuicao {
-        char* s1 = remove_espacos($1.string);
-        if (verifica_variavel_existe_pilha(s1) != NULL) {
-            char* tipo_variavel = verifica_tipo_variavel(s1);
-            if (strcmp(tipo_variavel, "NUMERO") == 0) {
-                if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                    adicionar_variavel_numero("NUMERO", s1, $3.number, "linha_atribuicao");
-                }
-                else {
-                    atualiza_variavel("NUMERO", s1, $3.number, "", "linha_declaracao");
-                }
-            }
-            else {
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
-            }
-        } else {
-            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
-        }
-    }
-    | IDENTIFICADOR '=' expressao_cadeia_atribuicao {
-        char* s1 = remove_espacos($1.string);
-        if (verifica_variavel_existe_pilha(s1) != NULL) {
-            char* tipo_variavel = verifica_tipo_variavel(s1);
-            if (strcmp(tipo_variavel, "CADEIA") == 0) {
-                if (verifica_variavel_existe_escopo_atual(s1) == NULL) {
-                    adicionar_variavel_cadeia("CADEIA", s1, $3.string, "linha_atribuicao");
-                }
-                else {
-                    atualiza_variavel("CADEIA", s1, 0, $3.string, "linha_declaracao");
-                }
-            }
-            else {
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
-            }
-        }else {
-            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
-        }
-    }
-    ;
-expressao_numero_atribuicao:
-    NUMERO { 
-        $$.number = $1.number; 
-    }
-    | IDENTIFICADOR { 
-        char* s1 = remove_espacos($1.string);
-        if(verifica_variavel_existe_pilha(s1) != NULL){
-            if(strcmp(verifica_tipo_variavel(s1), "NUMERO") == 0){
-                $$.number = busca_valor_variavel_numero(s1); 
-            }
-            else{
-                //$$.string = busca_valor_variavel_numero(s1); 
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
-            }
-        }
-    }
-    | expressao_numero_atribuicao '+' NUMERO { 
-        $$.number  = $1.number + $3.number; 
-    }
-    | expressao_numero_atribuicao '+' IDENTIFICADOR {
-        char* s3 = remove_espacos($3.string);
-        if(verifica_variavel_existe_pilha(s3) != NULL){
-            if(strcmp(verifica_tipo_variavel(s3), "NUMERO") == 0){
-                int valor_variavel_s3 = busca_valor_variavel_numero(s3);
-                $$.number  = $1.number + valor_variavel_s3; 
-            }
-            else{
-                //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
-                //$$.string  = $1.number + valor_variavel_s3; 
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
-            }
-        }
-        else{
-            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
-        }
-    }
-    ;
-
-expressao_cadeia_atribuicao:
-    CADEIA { 
+    | CADEIA {
         char* s1 = remove_espacos_fora_aspas($1.string);
         $$.string = s1;
     }
-    | IDENTIFICADOR { 
+    | IDENTIFICADOR {
         char* s1 = remove_espacos($1.string);
-        if(verifica_variavel_existe_pilha(s1) != NULL){
-            if(strcmp(verifica_tipo_variavel(s1), "CADEIA") == 0){
-                $$.string = busca_valor_variavel_cadeia(s1); 
+        if (verifica_variavel_existe_pilha(s1) != NULL) {
+            char* tipo_variavel = verifica_tipo_variavel(s1);
+            if(strcmp(tipo_variavel, "NUMERO") == 0){
+                int valor_variavel_s1 = busca_valor_variavel_numero(s1);
+                $$.string = numero_para_string(valor_variavel_s1);
             }
-            else{
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+            else if(strcmp(tipo_variavel, "CADEIA") == 0){
+                char* valor_variavel_s1 = busca_valor_variavel_cadeia(s1);
+                $$.string = valor_variavel_s1;
             }
+            else {
+                printf("[%d] Erro: Variavel '%s' com tipo inválido\n", linha_indice, s1);
+            }
+        } 
+        else {
+            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s1);
         }
     }
-    | expressao_cadeia_atribuicao '+' CADEIA {
-        char* s3 = remove_espacos_fora_aspas($3.string);
-        size_t len1 = strlen($1.string);
-        size_t len2 = strlen(s3);
-        char* result = (char*)malloc(len1 + len2 + 1);
-
-        strcpy(result, $1.string);
-        strcat(result, s3);
-
-        $$.string  = result;
-
-        //$$.string  = concatenar_strings($1.string, $3.string);
+    | expressao '+' NUMERO {
+        char* tipo_expressao = verificar_tipo($1.string);
+        if (strcmp(tipo_expressao, "NUMERO") == 0 ) {
+            int soma = atoi($1.string) + $3.number;
+            $$.string = numero_para_string(soma);
+        } else {
+           printf("[%d] Erro: Tipos incompatíveis\n", linha_indice);
+        }
     }
-    | expressao_cadeia_atribuicao '+' IDENTIFICADOR {
+    | expressao '+' CADEIA {
+        char* tipo_expressao = verificar_tipo($1.string);
+        if (strcmp(tipo_expressao, "CADEIA") == 0) {
+            char* s1 = retira_ultimo_digito($1.string);
+            char* s3 = remove_espacos_fora_aspas($3.string);
+            s3 = retira_primeiro_digito(s3);
+
+            size_t len1 = strlen(s1);
+            size_t len2 = strlen(s3);
+            char* result = (char*)malloc(len1 + len2 + 1);
+
+            strcpy(result, s1);
+            strcat(result, s3);
+
+            $$.string  = result;
+        } 
+        else {
+           printf("[%d] Erro: Tipos incompatíveis\n", linha_indice);
+        }
+    }
+    | expressao '+' IDENTIFICADOR {
+        char* tipo_expressao = verificar_tipo($1.string);
         char* s3 = remove_espacos($3.string);
-        if(verifica_variavel_existe_pilha(s3) != NULL){
-            if(strcmp(verifica_tipo_variavel(s3), "CADEIA") == 0){
-                char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+        if (verifica_variavel_existe_pilha(s3) != NULL) {
+            char* tipo_variavel = verifica_tipo_variavel(s3);
+            if (strcmp(tipo_expressao, tipo_variavel) == 0){
+                if (strcmp(tipo_expressao, "NUMERO") == 0) {
+                    int valor_variavel_s3 = busca_valor_variavel_numero(s3);
+                    int soma = atoi($1.string) + valor_variavel_s3;
+                    $$.string = numero_para_string(soma);
+                }
+                else if (strcmp(tipo_expressao, "CADEIA") == 0){
+                    char* s1 = retira_ultimo_digito($1.string);
+                    char* valor_variavel_s3 = busca_valor_variavel_cadeia(s3);
+                    valor_variavel_s3 = retira_primeiro_digito(valor_variavel_s3);
 
-                size_t len1 = strlen($1.string);
-                size_t len2 = strlen(valor_variavel_s3);
-                char* result = (char*)malloc(len1 + len2 + 1);
+                    size_t len1 = strlen(s1);
+                    size_t len2 = strlen(valor_variavel_s3);
+                    char* result = (char*)malloc(len1 + len2 + 1);
 
-                strcpy(result, $1.string);
-                strcat(result, valor_variavel_s3);
+                    strcpy(result, s1);
+                    strcat(result, valor_variavel_s3);
 
-                $$.string  = result;
+                    $$.string  = result;
+                }
             }
-            else{
-                printf("[%d] Erro: Tipos incompativeis\n", linha_indice);
+            else {
+                printf("[%d] Erro: Tipos incompatíveis\n", linha_indice);
             }
         }
-        else{
-            printf("[%d] Erro: Variavel não declarada\n", linha_indice);
+        else {
+            printf("[%d] Erro: Variavel '%s' não declarada\n", linha_indice, s3);
         }
+
     }
-    ;
 
 linha_print:
     PRINT IDENTIFICADOR  { 

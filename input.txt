@@ -1,23 +1,5 @@
 BLOCO _principal_
-NUMERO a = 10, b = 20 + 30;
-CADEIA x;
-PRINT b;
-PRINT a;
-x= "Ola mundo";
-PRINT x;
-BLOCO _n1_ 
-CADEIA a = "Compiladores";
-NUMERO c;
-c=45;
-PRINT b; 
-PRINT c;
-BLOCO _n2_ 
-CADEIA b = " eh massa";
-PRINT b;
-a=11;
-CADEIA a= "Bloco2";
-PRINT a;
-PRINT c;
-PRINT d;
-FIM _n2_ 
+NUMERO a;
+BLOCO _n2_
+a = 1;
 FIM _n1_
