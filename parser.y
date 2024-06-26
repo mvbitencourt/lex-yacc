@@ -168,7 +168,7 @@ char* remove_espacos(const char* str) {
     }
 
     for (i = 0, j = 0; i < len; i++) {
-        if (str[i] != ' ') {
+        if (str[i] != ' ' && str[i] != '\t') { // Verifica espaços e tabulações
             nova_str[j++] = str[i];
         }
     }
@@ -178,9 +178,10 @@ char* remove_espacos(const char* str) {
 }
 
 
-char* remove_espacos_fora_aspas( char* str) {
+char* remove_espacos_fora_aspas(const char* str) {
     int len = strlen(str);
     char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
+
     if (nova_str == NULL) {
         fprintf(stderr, "Erro de alocação de memória\n");
         exit(1);
@@ -194,7 +195,7 @@ char* remove_espacos_fora_aspas( char* str) {
             dentro_aspas = !dentro_aspas; // Alterna o estado dentro/fora de aspas
         }
 
-        if (dentro_aspas || (!dentro_aspas && str[i] != ' ')) {
+        if (dentro_aspas || (!dentro_aspas && str[i] != ' ' && str[i] != '\t')) {
             nova_str[j++] = str[i];
         }
     }
@@ -380,7 +381,7 @@ char* retira_primeiro_digito(char *str) {
     return nova_str;
 }
 
-int linha_indice = 0; // Declaração da variável de contagem de linhas
+int linha_indice = 1; // Declaração da variável de contagem de linhas
 
 %}
 
@@ -399,9 +400,9 @@ int linha_indice = 0; // Declaração da variável de contagem de linhas
 programa:
     programa linha {
         linha_indice++; 
-        /*printf("[%d] ", linha_indice); imprimir_pilha();*/
+        //printf("[%d] ", linha_indice); imprimir_pilha();
     }
-    | /* vazio */
+    | /* vazio */ { linha_indice++; }
     ;
 
 linha:

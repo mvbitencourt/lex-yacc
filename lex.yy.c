@@ -492,8 +492,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "teste.l"
-#line 2 "teste.l"
+#line 1 "scanner.l"
+#line 2 "scanner.l"
 #include <stdio.h>
 #include "y.tab.h"
 #line 500 "lex.yy.c"
@@ -714,7 +714,7 @@ YY_DECL
 		}
 
 	{
-#line 6 "teste.l"
+#line 6 "scanner.l"
 
 
 #line 721 "lex.yy.c"
@@ -776,84 +776,84 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 8 "teste.l"
+#line 8 "scanner.l"
 { return BLOCO_INICIO; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 9 "teste.l"
+#line 9 "scanner.l"
 { return BLOCO_FIM; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 10 "teste.l"
+#line 10 "scanner.l"
 { return TIPO_NUMERO; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 11 "teste.l"
+#line 11 "scanner.l"
 { return TIPO_CADEIA; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 12 "teste.l"
+#line 12 "scanner.l"
 { return PRINT; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 13 "teste.l"
+#line 13 "scanner.l"
 { yylval.string = strdup(yytext); return IDENTIFICADOR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 14 "teste.l"
+#line 14 "scanner.l"
 { yylval.number = atoi(yytext); return NUMERO; }
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 15 "teste.l"
+#line 15 "scanner.l"
 { yylval.string = strdup(yytext); return CADEIA; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 16 "teste.l"
+#line 16 "scanner.l"
 { return '='; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 17 "teste.l"
+#line 17 "scanner.l"
 { return ';'; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 18 "teste.l"
+#line 18 "scanner.l"
 { return ','; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 19 "teste.l"
+#line 19 "scanner.l"
 { return '+'; }
 	YY_BREAK
 case 13:
 /* rule 13 can match eol */
 YY_RULE_SETUP
-#line 20 "teste.l"
+#line 20 "scanner.l"
 { /* Ignorar novas linhas */ }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 21 "teste.l"
+#line 21 "scanner.l"
 { /* Ignorar espaços e tabulações */ }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 22 "teste.l"
+#line 22 "scanner.l"
 { printf("Desconhecido: %s\n", yytext); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 24 "teste.l"
+#line 24 "scanner.l"
 ECHO;
 	YY_BREAK
 #line 860 "lex.yy.c"
@@ -1861,7 +1861,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 24 "teste.l"
+#line 24 "scanner.l"
 
 
 int yywrap() {

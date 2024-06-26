@@ -1,7 +1,7 @@
 #define YY_parse_h_included
 /*#define YY_USE_CLASS 
 */
-/*  A Bison++ parser, made from teste.y  */
+/*  A Bison++ parser, made from parser.y  */
 
  /* with Bison++ version bison++ Version 1.21.9-1, adapted from GNU bison by coetmeur@icdc.fr
 Maintained by Magnus Ekdahl <magnus@debian.org>
@@ -98,7 +98,7 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
 #define YYBISON 1  
 
  #line 88 "/usr/share/bison++/bison.cc"
-#line 1 "teste.y"
+#line 1 "parser.y"
 
 #include <ctype.h>
 #include <regex.h>
@@ -269,7 +269,7 @@ char* remove_espacos(const char* str) {
     }
 
     for (i = 0, j = 0; i < len; i++) {
-        if (str[i] != ' ') {
+        if (str[i] != ' ' && str[i] != '\t') { // Verifica espaços e tabulações
             nova_str[j++] = str[i];
         }
     }
@@ -279,9 +279,10 @@ char* remove_espacos(const char* str) {
 }
 
 
-char* remove_espacos_fora_aspas( char* str) {
+char* remove_espacos_fora_aspas(const char* str) {
     int len = strlen(str);
     char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
+
     if (nova_str == NULL) {
         fprintf(stderr, "Erro de alocação de memória\n");
         exit(1);
@@ -295,7 +296,7 @@ char* remove_espacos_fora_aspas( char* str) {
             dentro_aspas = !dentro_aspas; // Alterna o estado dentro/fora de aspas
         }
 
-        if (dentro_aspas || (!dentro_aspas && str[i] != ' ')) {
+        if (dentro_aspas || (!dentro_aspas && str[i] != ' ' && str[i] != '\t')) {
             nova_str[j++] = str[i];
         }
     }
@@ -481,10 +482,10 @@ char* retira_primeiro_digito(char *str) {
     return nova_str;
 }
 
-int linha_indice = 0; // Declaração da variável de contagem de linhas
+int linha_indice = 1; // Declaração da variável de contagem de linhas
 
 
-#line 387 "teste.y"
+#line 388 "parser.y"
 typedef union 
 {
 	int number;
@@ -893,10 +894,10 @@ static const short yyrhs[] = {    15,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   399,   404,   407,   409,   410,   411,   412,   413,   416,   422,
-   428,   430,   433,   435,   437,   457,   477,   482,   493,   506,
-   532,   534,   536,   556,   576,   580,   592,   595,   614,   655,
-   659,   663,   683,   692,   712,   748
+   400,   405,   408,   410,   411,   412,   413,   414,   417,   423,
+   429,   431,   434,   436,   438,   458,   478,   483,   494,   507,
+   533,   535,   537,   557,   577,   581,   593,   596,   615,   656,
+   660,   664,   684,   693,   713,   749
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
@@ -1462,26 +1463,30 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 400 "teste.y"
+#line 401 "parser.y"
 {
         linha_indice++; 
-        /*printf("[%d] ", linha_indice); imprimir_pilha();*/
+        //printf("[%d] ", linha_indice); imprimir_pilha();
     ;
     break;}
+case 2:
+#line 405 "parser.y"
+{ linha_indice++; ;
+    break;}
 case 9:
-#line 417 "teste.y"
+#line 418 "parser.y"
 {
         empilhar_escopo();
     ;
     break;}
 case 10:
-#line 423 "teste.y"
+#line 424 "parser.y"
 {
         desempilhar_escopo();
     ;
     break;}
 case 15:
-#line 438 "teste.y"
+#line 439 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
@@ -1503,7 +1508,7 @@ case 15:
     ;
     break;}
 case 16:
-#line 457 "teste.y"
+#line 458 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
@@ -1525,14 +1530,14 @@ case 16:
     ;
     break;}
 case 17:
-#line 478 "teste.y"
+#line 479 "parser.y"
 { 
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 18:
-#line 482 "teste.y"
+#line 483 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1546,7 +1551,7 @@ case 18:
     ;
     break;}
 case 19:
-#line 493 "teste.y"
+#line 494 "parser.y"
 {
         char* s1 = retira_ultimo_digito(yyvsp[-2].string);
         char* s3 = remove_espacos_fora_aspas(yyvsp[0].string);
@@ -1562,7 +1567,7 @@ case 19:
     ;
     break;}
 case 20:
-#line 506 "teste.y"
+#line 507 "parser.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1590,7 +1595,7 @@ case 20:
     ;
     break;}
 case 23:
-#line 537 "teste.y"
+#line 538 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
@@ -1612,7 +1617,7 @@ case 23:
     ;
     break;}
 case 24:
-#line 556 "teste.y"
+#line 557 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
@@ -1634,13 +1639,13 @@ case 24:
     ;
     break;}
 case 25:
-#line 577 "teste.y"
+#line 578 "parser.y"
 { 
         yyval.number = yyvsp[0].number; 
     ;
     break;}
 case 26:
-#line 580 "teste.y"
+#line 581 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1655,13 +1660,13 @@ case 26:
     ;
     break;}
 case 27:
-#line 592 "teste.y"
+#line 593 "parser.y"
 { 
         yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
     ;
     break;}
 case 28:
-#line 595 "teste.y"
+#line 596 "parser.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1681,7 +1686,7 @@ case 28:
     ;
     break;}
 case 29:
-#line 615 "teste.y"
+#line 616 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[0].string);
         char* s1 = remove_espacos(yyvsp[-2].string);
@@ -1724,20 +1729,20 @@ case 29:
     ;
     break;}
 case 30:
-#line 656 "teste.y"
+#line 657 "parser.y"
 {
         yyval.string = numero_para_string(yyvsp[0].number);
     ;
     break;}
 case 31:
-#line 659 "teste.y"
+#line 660 "parser.y"
 {
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 32:
-#line 663 "teste.y"
+#line 664 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string);
         if (verifica_variavel_existe_pilha(s1) != NULL) {
@@ -1760,7 +1765,7 @@ case 32:
     ;
     break;}
 case 33:
-#line 683 "teste.y"
+#line 684 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "NUMERO") == 0 ) {
@@ -1772,7 +1777,7 @@ case 33:
     ;
     break;}
 case 34:
-#line 692 "teste.y"
+#line 693 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "CADEIA") == 0) {
@@ -1795,7 +1800,7 @@ case 34:
     ;
     break;}
 case 35:
-#line 712 "teste.y"
+#line 713 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         char* s3 = remove_espacos(yyvsp[0].string);
@@ -1833,7 +1838,7 @@ case 35:
     ;
     break;}
 case 36:
-#line 749 "teste.y"
+#line 750 "parser.y"
 { 
         char* s2 = remove_espacos(yyvsp[0].string);
 
@@ -2054,7 +2059,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 766 "teste.y"
+#line 767 "parser.y"
 
 
 void yyerror(const char *s) {
