@@ -402,7 +402,7 @@ programa:
         linha_indice++; 
         //printf("[%d] ", linha_indice); imprimir_pilha();
     }
-    | /* vazio */ { linha_indice++; }
+    | /* vazio */
     ;
 
 linha:

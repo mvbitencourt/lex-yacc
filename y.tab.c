@@ -1469,10 +1469,6 @@ case 1:
         //printf("[%d] ", linha_indice); imprimir_pilha();
     ;
     break;}
-case 2:
-#line 405 "parser.y"
-{ linha_indice++; ;
-    break;}
 case 9:
 #line 418 "parser.y"
 {

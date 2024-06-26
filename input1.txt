@@ -1,7 +1,6 @@
 BLOCO _principal_
 	NUMERO a = 10, b = 20 + 30;
 	CADEIA x;
-
 	PRINT b;
 	PRINT a;
 	x= "Ola mundo";
@@ -13,7 +12,6 @@ BLOCO _principal_
 		c=45;
 		PRINT b; 
 		PRINT c;
-
 		BLOCO _n2_ 
 			CADEIA b = " eh massa";
 			b = a + b;
@@ -26,7 +24,6 @@ BLOCO _principal_
 			PRINT d;
 		FIM _n2_ 
 	FIM _n1_
-	
 	PRINT c;
 	PRINT a;
 FIM _principal_
