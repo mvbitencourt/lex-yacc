@@ -1,5 +1,5 @@
-flex teste.l
-yacc -d teste.y
+flex programa.l
+yacc -d programa.y
 gcc -c lex.yy.c y.tab.c
-gcc -o exeteste lex.yy.o y.tab.o -lfl
-./exeteste < input.txt > output.txt
+gcc -o programa lex.yy.o y.tab.o -lfl
+./programa < input.txt > output.txt
