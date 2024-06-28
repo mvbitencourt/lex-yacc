@@ -122,7 +122,6 @@ typedef struct Variavel {
         int num_valor;
         char *str_valor;
     } valor;
-    char *tipo_linha;
     struct Variavel *proximo;
 } Variavel;
 
@@ -243,21 +242,6 @@ char* busca_valor_variavel_cadeia(char *nome_var) {
     return NULL; // Valor padrão se a variável não for encontrada
 }
 
-char* buscar_tipo_linha(char *nome_variavel) {
-    Escopo *escopo_atual = pilha_de_escopos;
-    while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
-        while (var_atual != NULL) {
-            if (strcmp(var_atual->nome, nome_variavel) == 0) {
-                return var_atual->tipo_linha;
-            }
-            var_atual = var_atual->proximo;
-        }
-        escopo_atual = escopo_atual->proximo;
-    }
-    return NULL; // Retorna NULL se a variável não for encontrada
-}
-
 char* remove_espacos(const char* str) {
     int i, j;
     int len = strlen(str);
@@ -305,7 +289,7 @@ char* remove_espacos_fora_aspas(const char* str) {
     return nova_str;
 }
 
-void adicionar_variavel_numero(char *tipo, char *nome, int num_valor, char *tipo_linha) {
+void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
     if (pilha_de_escopos == NULL) {
         printf("Erro: pilha de escopos não inicializada\n");
         return;
@@ -316,13 +300,11 @@ void adicionar_variavel_numero(char *tipo, char *nome, int num_valor, char *tipo
     nova_variavel->tipo_valor = TIPO_NUMERO;
     nova_variavel->valor.num_valor = num_valor;
 
-    nova_variavel->tipo_linha = tipo_linha;
-
     nova_variavel->proximo = pilha_de_escopos->variaveis;
     pilha_de_escopos->variaveis = nova_variavel;
 }
 
-void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor, char *tipo_linha) {
+void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor) {
     if (pilha_de_escopos == NULL) {
         printf("Erro: pilha de escopos não inicializada\n");
         return;
@@ -333,13 +315,11 @@ void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor, char *ti
     nova_variavel->tipo_valor = TIPO_CADEIA;
     nova_variavel->valor.str_valor = strdup(str_valor);
 
-    nova_variavel->tipo_linha = tipo_linha;
-
     nova_variavel->proximo = pilha_de_escopos->variaveis;
     pilha_de_escopos->variaveis = nova_variavel;
 }
 
-void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor, char *tipo_linha) {
+void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor) {
     Escopo *escopo_atual = pilha_de_escopos;
     while (escopo_atual != NULL) {
         Variavel *var_atual = escopo_atual->variaveis;
@@ -360,8 +340,6 @@ void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor, c
                 // Atualiza o tipo da variável
                 free(var_atual->tipo);
                 var_atual->tipo = strdup(tipo);
-                // Atualiza o campo tipo_linha
-                var_atual->tipo_linha = strdup(tipo_linha);
                 return;
             }
             var_atual = var_atual->proximo;
@@ -379,9 +357,9 @@ void imprimir_pilha() {
         Variavel *var_atual = escopo_atual->variaveis;
         while (var_atual != NULL) {
             if (var_atual->tipo_valor == TIPO_NUMERO) {
-                printf("[%s, %s, %d, %s]", var_atual->tipo, var_atual->nome, var_atual->valor.num_valor, var_atual->tipo_linha);
+                printf("[%s, %s, %d]", var_atual->tipo, var_atual->nome, var_atual->valor.num_valor);
             } else {
-                printf("[%s, %s, %s, %s]", var_atual->tipo, var_atual->nome, var_atual->valor.str_valor, var_atual->tipo_linha);
+                printf("[%s, %s, %s]", var_atual->tipo, var_atual->nome, var_atual->valor.str_valor);
             }
             var_atual = var_atual->proximo;
             if (var_atual != NULL) {
@@ -485,7 +463,7 @@ char* retira_primeiro_digito(char *str) {
 int linha_indice = 1; // Declaração da variável de contagem de linhas
 
 
-#line 388 "parser.y"
+#line 366 "parser.y"
 typedef union 
 {
 	int number;
@@ -894,10 +872,10 @@ static const short yyrhs[] = {    15,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-   400,   405,   408,   410,   411,   412,   413,   414,   417,   423,
-   429,   431,   434,   436,   438,   458,   478,   483,   494,   507,
-   533,   535,   537,   557,   577,   581,   593,   596,   615,   656,
-   660,   664,   684,   693,   713,   749
+   378,   383,   386,   388,   389,   390,   391,   392,   395,   401,
+   407,   409,   412,   414,   416,   431,   446,   451,   462,   475,
+   501,   503,   505,   520,   535,   539,   551,   554,   573,   603,
+   607,   611,   631,   640,   660,   696
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BLOCO_INICIO",
@@ -1463,77 +1441,67 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 401 "parser.y"
+#line 379 "parser.y"
 {
         linha_indice++; 
         //printf("[%d] ", linha_indice); imprimir_pilha();
     ;
     break;}
 case 9:
-#line 418 "parser.y"
+#line 396 "parser.y"
 {
         empilhar_escopo();
     ;
     break;}
 case 10:
-#line 424 "parser.y"
+#line 402 "parser.y"
 {
         desempilhar_escopo();
     ;
     break;}
 case 15:
-#line 439 "parser.y"
+#line 417 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
-            adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string, "linha_declaracao");
+            adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string);
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                    adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string, "linha_declaracao");
+                adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string);
             }
             else {
-                if(strcmp(buscar_tipo_linha(s1), "linha_atribuicao") == 0){
-                    atualiza_variavel("CADEIA", s1, 0, yyvsp[0].string, "linha_declaracao");
-                }
-                else{
-                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
-                }
+                printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
             }
         }
     ;
     break;}
 case 16:
-#line 458 "parser.y"
+#line 431 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-            adicionar_variavel_cadeia("CADEIA", s1, "", "linha_declaracao");
+            adicionar_variavel_cadeia("CADEIA", s1, "");
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                    adicionar_variavel_cadeia("CADEIA", s1, "", "linha_declaracao");
+                adicionar_variavel_cadeia("CADEIA", s1, "");
             }
             else {
-                if(strcmp(buscar_tipo_linha(s1), "linha_atribuicao") == 0){
-                    atualiza_variavel("CADEIA", s1, 0, "", "linha_declaracao");
-                }
-                else{
-                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
-                }
+                printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
             }
         }
     ;
     break;}
 case 17:
-#line 479 "parser.y"
+#line 447 "parser.y"
 { 
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 18:
-#line 483 "parser.y"
+#line 451 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1547,7 +1515,7 @@ case 18:
     ;
     break;}
 case 19:
-#line 494 "parser.y"
+#line 462 "parser.y"
 {
         char* s1 = retira_ultimo_digito(yyvsp[-2].string);
         char* s3 = remove_espacos_fora_aspas(yyvsp[0].string);
@@ -1563,7 +1531,7 @@ case 19:
     ;
     break;}
 case 20:
-#line 507 "parser.y"
+#line 475 "parser.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1591,57 +1559,47 @@ case 20:
     ;
     break;}
 case 23:
-#line 538 "parser.y"
+#line 506 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[-2].string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
-            adicionar_variavel_numero("NUMERO", s1, yyvsp[0].number, "linha_declaracao");
+            adicionar_variavel_numero("NUMERO", s1, yyvsp[0].number);
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_numero("NUMERO", s1, yyvsp[0].number, "linha_declaracao");
+                adicionar_variavel_numero("NUMERO", s1, yyvsp[0].number);
             }
             else {
-                if(strcmp(buscar_tipo_linha(s1), "linha_atribuicao") == 0){
-                    atualiza_variavel("NUMERO", s1, yyvsp[0].number, "", "linha_declaracao");
-                }
-                else{
-                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
-                }
+                printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
             }
         }
     ;
     break;}
 case 24:
-#line 557 "parser.y"
+#line 520 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-            adicionar_variavel_numero("NUMERO", s1, 0, "linha_declaracao");
+            adicionar_variavel_numero("NUMERO", s1, 0);
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_numero("NUMERO", s1, 0, "linha_declaracao");
+                adicionar_variavel_numero("NUMERO", s1, 0);
             }
             else {
-                if(strcmp(buscar_tipo_linha(s1), "linha_atribuicao") == 0){
-                    atualiza_variavel("NUMERO", s1, 0, "", "linha_declaracao");
-                }
-                else{
-                    printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
-                }
+                printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
             }
         }
     ;
     break;}
 case 25:
-#line 578 "parser.y"
+#line 536 "parser.y"
 { 
         yyval.number = yyvsp[0].number; 
     ;
     break;}
 case 26:
-#line 581 "parser.y"
+#line 539 "parser.y"
 { 
         char* s1 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s1) != NULL){
@@ -1656,13 +1614,13 @@ case 26:
     ;
     break;}
 case 27:
-#line 593 "parser.y"
+#line 551 "parser.y"
 { 
         yyval.number  = yyvsp[-2].number + yyvsp[0].number; 
     ;
     break;}
 case 28:
-#line 596 "parser.y"
+#line 554 "parser.y"
 {
         char* s3 = remove_espacos(yyvsp[0].string);
         if(verifica_variavel_existe_pilha(s3) != NULL){
@@ -1682,7 +1640,7 @@ case 28:
     ;
     break;}
 case 29:
-#line 616 "parser.y"
+#line 574 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[0].string);
         char* s1 = remove_espacos(yyvsp[-2].string);
@@ -1690,30 +1648,19 @@ case 29:
             char* tipo_variavel = verifica_tipo_variavel(s1);
             tipo_expressao = verificar_tipo(yyvsp[0].string);
             if (strcmp(tipo_variavel, tipo_expressao) == 0) {
-                if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                    if (strcmp(tipo_expressao, "NUMERO") == 0){
-                        int expressao_number = atoi(yyvsp[0].string);
-                        adicionar_variavel_numero("NUMERO", s1, expressao_number, "linha_atribuicao");
-                    }
-                    else if (strcmp(tipo_expressao, "CADEIA") == 0){
-                        adicionar_variavel_cadeia("CADEIA", s1, yyvsp[0].string, "linha_atribuicao");
-                    }
+                if (strcmp(tipo_expressao, "NUMERO") == 0) {
+                    int expressao_number = atoi(yyvsp[0].string);
+                    atualiza_variavel("NUMERO", s1, expressao_number, "");
                 }
-                else {
-                    if (strcmp(tipo_expressao, "NUMERO") == 0){
-                        int expressao_number = atoi(yyvsp[0].string);
-                        atualiza_variavel("NUMERO", s1, expressao_number, "", "linha_declaracao");
-                    }
-                    else if (strcmp(tipo_expressao, "CADEIA") == 0){
-                        char* nova_cadeia;
-                        nova_cadeia = (char *)malloc((strlen(yyvsp[0].string) + 1) * sizeof(char));
-                        strcpy(nova_cadeia, yyvsp[0].string);
-                        atualiza_variavel("CADEIA", s1, 0, nova_cadeia, "linha_declaracao");
-                        free(nova_cadeia);
-                    }
-                    else{
-                        printf("[%d] Erro: tipo inválido\n", linha_indice);
-                    }
+                else if (strcmp(tipo_expressao, "CADEIA") == 0){
+                    char* nova_cadeia;
+                    nova_cadeia = (char *)malloc((strlen(yyvsp[0].string) + 1) * sizeof(char));
+                    strcpy(nova_cadeia, yyvsp[0].string);
+                    atualiza_variavel("CADEIA", s1, 0, nova_cadeia);
+                    free(nova_cadeia);
+                }
+                else{
+                    printf("[%d] Erro: tipo inválido\n", linha_indice);
                 }
             }
             else {
@@ -1725,20 +1672,20 @@ case 29:
     ;
     break;}
 case 30:
-#line 657 "parser.y"
+#line 604 "parser.y"
 {
         yyval.string = numero_para_string(yyvsp[0].number);
     ;
     break;}
 case 31:
-#line 660 "parser.y"
+#line 607 "parser.y"
 {
         char* s1 = remove_espacos_fora_aspas(yyvsp[0].string);
         yyval.string = s1;
     ;
     break;}
 case 32:
-#line 664 "parser.y"
+#line 611 "parser.y"
 {
         char* s1 = remove_espacos(yyvsp[0].string);
         if (verifica_variavel_existe_pilha(s1) != NULL) {
@@ -1761,7 +1708,7 @@ case 32:
     ;
     break;}
 case 33:
-#line 684 "parser.y"
+#line 631 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "NUMERO") == 0 ) {
@@ -1773,7 +1720,7 @@ case 33:
     ;
     break;}
 case 34:
-#line 693 "parser.y"
+#line 640 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         if (strcmp(tipo_expressao, "CADEIA") == 0) {
@@ -1796,7 +1743,7 @@ case 34:
     ;
     break;}
 case 35:
-#line 713 "parser.y"
+#line 660 "parser.y"
 {
         char* tipo_expressao = verificar_tipo(yyvsp[-2].string);
         char* s3 = remove_espacos(yyvsp[0].string);
@@ -1834,7 +1781,7 @@ case 35:
     ;
     break;}
 case 36:
-#line 750 "parser.y"
+#line 697 "parser.y"
 { 
         char* s2 = remove_espacos(yyvsp[0].string);
 
@@ -2055,7 +2002,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 767 "parser.y"
+#line 714 "parser.y"
 
 
 void yyerror(const char *s) {

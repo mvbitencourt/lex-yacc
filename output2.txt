@@ -1,4 +1,4 @@
-[5] 69
-[11] "123123"
-[13] 69
-[14] Erro: variável não declarada
+[6] 69
+[12] "123123"
+[14] 91
+[15] Erro: variável não declarada

@@ -1,11 +1,13 @@
-[3] 50
-[4] 10
-[6] Erro: tipos não compatíveis
-[7] "Ola mundo"
-[12] 50
-[13] 45
-[17] "Compiladores eh massa"
-[18] Erro: tipos não compatíveis
-[20] "Bloco2"
-[21] 45
-[23] 55
+[4] 50
+[5] 10
+[7] Erro: tipos não compatíveis
+[8] "Ola mundo"
+[13] 50
+[14] 45
+[18] "Compiladores eh massa"
+[19] Erro: tipos não compatíveis
+[21] "Bloco2"
+[22] 45
+[24] 55
+[27] Erro: variável não declarada
+[28] 10
