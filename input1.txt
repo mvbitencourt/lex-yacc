@@ -3,6 +3,11 @@ BLOCO _principal_
 	CADEIA x;
 	PRINT b;
 	PRINT a;
+
+
+
+
+
 	x= "Ola mundo";
 	x=a;
 	PRINT x;
@@ -13,11 +18,15 @@ BLOCO _principal_
 		PRINT b; 
 		PRINT c;
 		BLOCO _n2_ 
+
+
+
+
 			CADEIA b = " eh massa";
 			b = a + b;
 			PRINT b;
 			a=11;
-			CADEIA a= "Bloco2";
+			CADEIA a= "Bloco 2";
 			PRINT a;
 			PRINT c;
 			NUMERO d = c+10;
