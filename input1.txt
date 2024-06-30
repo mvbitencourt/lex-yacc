@@ -17,7 +17,7 @@ BLOCO _principal_
 			b = a + b;
 			PRINT b;
 			a=11;
-			CADEIA a= "Bloco2";
+			CADEIA a= "Bloco 2";
 			PRINT a;
 			PRINT c;
 			NUMERO d = c+10;

@@ -32,110 +32,110 @@ typedef struct Escopo {
 Escopo *pilha_de_escopos = NULL;
 
 void empilhar_escopo() {
-    Escopo *novo_escopo = (Escopo *)malloc(sizeof(Escopo));
-    novo_escopo->variaveis = NULL;
-    novo_escopo->proximo = pilha_de_escopos;
-    pilha_de_escopos = novo_escopo;
+    Escopo *novo_escopo = (Escopo *)malloc(sizeof(Escopo)); // Aloca memória para um novo escopo
+    novo_escopo->variaveis = NULL; // Inicializa a lista de variáveis do novo escopo
+    novo_escopo->proximo = pilha_de_escopos; // Define o próximo escopo como o escopo atual da pilha
+    pilha_de_escopos = novo_escopo; // Coloca o novo escopo no topo da pilha
 }
 
 void desempilhar_escopo() {
     if (pilha_de_escopos != NULL) {
-        Escopo *escopo_antigo = pilha_de_escopos;
-        pilha_de_escopos = pilha_de_escopos->proximo;
-        free(escopo_antigo);
+        Escopo *escopo_antigo = pilha_de_escopos; // Guarda o escopo atual para liberar memória depois
+        pilha_de_escopos = pilha_de_escopos->proximo; // Atualiza o topo da pilha para o próximo escopo
+        free(escopo_antigo); // Libera a memória do escopo antigo
     } else {
         printf("Erro: tentativa de remover escopo inexistente\n");
     }
 }
 
 void inicializar_pilha_de_escopos() {
-    pilha_de_escopos = NULL;
+    pilha_de_escopos = NULL; // Inicializa a pilha de escopos como vazia
 }
 
 Variavel* verifica_variavel_existe_pilha(char *identificador) {
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (strcmp(var_atual->nome, identificador) == 0) {
-                return var_atual;
+                return var_atual; // Retorna a variável se encontrada
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
         }
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
     }
-    return NULL;
+    return NULL; // Retorna NULL se a variável não for encontrada
 }
 
 Variavel* verifica_variavel_existe_escopo_atual(char *identificador) {
     if (pilha_de_escopos == NULL) {
-        return NULL;
+        return NULL; // Retorna NULL se a pilha de escopos estiver vazia
     }
 
-    Variavel *var_atual = pilha_de_escopos->variaveis;
+    Variavel *var_atual = pilha_de_escopos->variaveis; // Começa pela variável do escopo atual
     while (var_atual != NULL) {
         if (strcmp(var_atual->nome, identificador) == 0) {
-            return var_atual;
+            return var_atual; // Retorna a variável se encontrada
         }
-        var_atual = var_atual->proximo;
+        var_atual = var_atual->proximo; // Move para a próxima variável
     }
 
-    return NULL;
+    return NULL; // Retorna NULL se a variável não for encontrada
 }
 
 char* verifica_tipo_variavel(char *nome_var) {
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (strcmp(var_atual->nome, nome_var) == 0) {
-                return var_atual->tipo;
+                return var_atual->tipo; // Retorna o tipo da variável se encontrada
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
         }
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
     }
     printf("Erro: variável %s não encontrada\n", nome_var);
-    return NULL; // Retornar NULL se a variável não for encontrada
+    return NULL; // Retorna NULL se a variável não for encontrada
 }
 
 int busca_valor_variavel_numero(char *nome_var) {
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (strcmp(var_atual->nome, nome_var) == 0) {
                 if (var_atual->tipo_valor == TIPO_NUMERO) {
-                    return var_atual->valor.num_valor;
+                    return var_atual->valor.num_valor; // Retorna o valor se for do tipo NUMERO
                 } else {
                     printf("Erro: variável %s não é do tipo NUMERO\n", nome_var);
                     return 0; // Valor padrão ou tratar erro de outra forma
                 }
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
         }
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
     }
     printf("Erro: variável %s não encontrada\n", nome_var);
     return 0; // Valor padrão se a variável não for encontrada
 }
 
 char* busca_valor_variavel_cadeia(char *nome_var) {
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (strcmp(var_atual->nome, nome_var) == 0) {
                 if (var_atual->tipo_valor == TIPO_CADEIA) {
-                    return var_atual->valor.str_valor;
+                    return var_atual->valor.str_valor; // Retorna o valor se for do tipo CADEIA
                 } else {
                     printf("Erro: variável %s não é do tipo CADEIA\n", nome_var);
                     return NULL; // Valor padrão ou tratar erro de outra forma
                 }
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
         }
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
     }
     printf("Erro: variável %s não encontrada\n", nome_var);
     return NULL; // Valor padrão se a variável não for encontrada
@@ -143,7 +143,7 @@ char* busca_valor_variavel_cadeia(char *nome_var) {
 
 char* remove_espacos(const char* str) {
     int i, j;
-    int len = strlen(str);
+    int len = strlen(str); // Obtém o comprimento da string
     char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
 
     if (nova_str == NULL) {
@@ -158,12 +158,11 @@ char* remove_espacos(const char* str) {
     }
     nova_str[j] = '\0'; // Termina a nova string
 
-    return nova_str;
+    return nova_str; // Retorna a nova string
 }
 
-
 char* remove_espacos_fora_aspas(const char* str) {
-    int len = strlen(str);
+    int len = strlen(str); // Obtém o comprimento da string
     char* nova_str = (char*)malloc(len + 1); // Aloca memória para a nova string
 
     if (nova_str == NULL) {
@@ -185,7 +184,7 @@ char* remove_espacos_fora_aspas(const char* str) {
     }
     nova_str[j] = '\0'; // Termina a nova string
 
-    return nova_str;
+    return nova_str; // Retorna a nova string
 }
 
 void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
@@ -193,14 +192,14 @@ void adicionar_variavel_numero(char *tipo, char *nome, int num_valor) {
         printf("Erro: pilha de escopos não inicializada\n");
         return;
     }
-    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
-    nova_variavel->tipo = strdup(tipo);
-    nova_variavel->nome = strdup(nome);
-    nova_variavel->tipo_valor = TIPO_NUMERO;
-    nova_variavel->valor.num_valor = num_valor;
+    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel)); // Aloca memória para uma nova variável
+    nova_variavel->tipo = strdup(tipo); // Duplica o tipo da variável
+    nova_variavel->nome = strdup(nome); // Duplica o nome da variável
+    nova_variavel->tipo_valor = TIPO_NUMERO; // Define o tipo de valor como NUMERO
+    nova_variavel->valor.num_valor = num_valor; // Define o valor numérico
 
-    nova_variavel->proximo = pilha_de_escopos->variaveis;
-    pilha_de_escopos->variaveis = nova_variavel;
+    nova_variavel->proximo = pilha_de_escopos->variaveis; // Coloca a nova variável no início da lista
+    pilha_de_escopos->variaveis = nova_variavel; // Atualiza a lista de variáveis do escopo atual
 }
 
 void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor) {
@@ -208,65 +207,65 @@ void adicionar_variavel_cadeia(char *tipo, char *nome, char *str_valor) {
         printf("Erro: pilha de escopos não inicializada\n");
         return;
     }
-    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel));
-    nova_variavel->tipo = strdup(tipo);
-    nova_variavel->nome = strdup(nome);
-    nova_variavel->tipo_valor = TIPO_CADEIA;
-    nova_variavel->valor.str_valor = strdup(str_valor);
+    Variavel *nova_variavel = (Variavel *)malloc(sizeof(Variavel)); // Aloca memória para uma nova variável
+    nova_variavel->tipo = strdup(tipo); // Duplica o tipo da variável
+    nova_variavel->nome = strdup(nome); // Duplica o nome da variável
+    nova_variavel->tipo_valor = TIPO_CADEIA; // Define o tipo de valor como CADEIA
+    nova_variavel->valor.str_valor = strdup(str_valor); // Duplica o valor da cadeia
 
-    nova_variavel->proximo = pilha_de_escopos->variaveis;
-    pilha_de_escopos->variaveis = nova_variavel;
+    nova_variavel->proximo = pilha_de_escopos->variaveis; // Coloca a nova variável no início da lista
+    pilha_de_escopos->variaveis = nova_variavel; // Atualiza a lista de variáveis do escopo atual
 }
 
 void atualiza_variavel(char *tipo, char *nome, int num_valor, char *str_valor) {
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (strcmp(var_atual->nome, nome) == 0) {
 
                 // Atualiza os valores conforme o tipo
                 if (strcmp(tipo, "NUMERO") == 0) {
-                    var_atual->tipo_valor = TIPO_NUMERO;
-                    var_atual->valor.num_valor = num_valor;
+                    var_atual->tipo_valor = TIPO_NUMERO; // Atualiza o tipo de valor
+                    var_atual->valor.num_valor = num_valor; // Atualiza o valor numérico
                 } else if (strcmp(tipo, "CADEIA") == 0) {
-                    var_atual->tipo_valor = TIPO_CADEIA;
+                    var_atual->tipo_valor = TIPO_CADEIA; // Atualiza o tipo de valor
                     if (strcmp(var_atual->tipo, "CADEIA") == 0) {
-                        free(var_atual->valor.str_valor);
+                        free(var_atual->valor.str_valor); // Libera a memória da cadeia antiga
                     }
-                    var_atual->valor.str_valor = strdup(str_valor);
+                    var_atual->valor.str_valor = strdup(str_valor); // Atualiza o valor da cadeia
                 }
                 // Atualiza o tipo da variável
-                free(var_atual->tipo);
-                var_atual->tipo = strdup(tipo);
+                free(var_atual->tipo); // Libera a memória do tipo antigo
+                var_atual->tipo = strdup(tipo); // Atualiza o tipo
                 return;
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
         }
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
     }
     printf("Erro: variável %s não encontrada.\n", nome);
 }
 
 void imprimir_pilha() {
     printf("Pilha = [");
-    Escopo *escopo_atual = pilha_de_escopos;
+    Escopo *escopo_atual = pilha_de_escopos; // Começa pelo escopo atual
     while (escopo_atual != NULL) {
         printf("[");
-        Variavel *var_atual = escopo_atual->variaveis;
+        Variavel *var_atual = escopo_atual->variaveis; // Itera pelas variáveis do escopo atual
         while (var_atual != NULL) {
             if (var_atual->tipo_valor == TIPO_NUMERO) {
                 printf("[%s, %s, %d]", var_atual->tipo, var_atual->nome, var_atual->valor.num_valor);
             } else {
                 printf("[%s, %s, %s]", var_atual->tipo, var_atual->nome, var_atual->valor.str_valor);
             }
-            var_atual = var_atual->proximo;
+            var_atual = var_atual->proximo; // Move para a próxima variável
             if (var_atual != NULL) {
                 printf(", ");
             }
         }
         printf("]");
-        escopo_atual = escopo_atual->proximo;
+        escopo_atual = escopo_atual->proximo; // Move para o próximo escopo
         if (escopo_atual != NULL) {
             printf(", ");
         }
@@ -279,9 +278,9 @@ char* numero_para_string(int numero) {
     // Assumindo que o número não terá mais de 50 caracteres
     char *buffer = (char *)malloc(50 * sizeof(char));
     if (buffer != NULL) {
-        sprintf(buffer, "%d", numero);
+        sprintf(buffer, "%d", numero); // Converte o número para string
     }
-    return buffer;
+    return buffer; // Retorna a string
 }
 
 int regex_match(char *str, char *pattern) {
@@ -310,11 +309,11 @@ char* verificar_tipo(char *str) {
     char *cadeia_regex = "^\"([^\"]*)\"$";
 
     if (regex_match(str, numero_regex)) {
-        return "NUMERO";
+        return "NUMERO"; // Retorna NUMERO se corresponder
     } else if (regex_match(str, cadeia_regex)) {
-        return "CADEIA";
+        return "CADEIA"; // Retorna CADEIA se corresponder
     } else {
-        return "DESCONHECIDO";
+        return "DESCONHECIDO"; // Retorna DESCONHECIDO se não corresponder
     }
 }
 
@@ -336,7 +335,7 @@ char* retira_ultimo_digito(char *str) {
     strncpy(nova_str, str, len - 1);
     nova_str[len - 1] = '\0'; // Adicionar o caractere nulo terminador
 
-    return nova_str;
+    return nova_str; // Retorna a nova string
 }
 
 char* retira_primeiro_digito(char *str) {
@@ -356,7 +355,7 @@ char* retira_primeiro_digito(char *str) {
     // Copiar a string original para a nova string, excluindo o primeiro caractere
     strcpy(nova_str, str + 1);
 
-    return nova_str;
+    return nova_str; // Retorna a nova string
 }
 
 int linha_indice = 1; // Declaração da variável de contagem de linhas
@@ -394,13 +393,13 @@ linha:
 
 linha_inicio_bloco:
     BLOCO_INICIO {
-        empilhar_escopo();
+        empilhar_escopo(); // Empilha um novo escopo
     }
     ;
 
 linha_fim_bloco:
     BLOCO_FIM {
-        desempilhar_escopo();
+        desempilhar_escopo(); // Desempilha o escopo atual
     }
     ;
 
@@ -417,11 +416,11 @@ declaracao_cadeia:
     IDENTIFICADOR '=' expressao_cadeia { 
         char* s1 = remove_espacos($1.string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
-            adicionar_variavel_cadeia("CADEIA", s1, $3.string);
+            adicionar_variavel_cadeia("CADEIA", s1, $3.string); // Adiciona uma variável do tipo cadeia
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_cadeia("CADEIA", s1, $3.string);
+                adicionar_variavel_cadeia("CADEIA", s1, $3.string); // Adiciona uma variável do tipo cadeia
             }
             else {
                 printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
@@ -431,11 +430,11 @@ declaracao_cadeia:
     | IDENTIFICADOR {
         char* s1 = remove_espacos($1.string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-            adicionar_variavel_cadeia("CADEIA", s1, "");
+            adicionar_variavel_cadeia("CADEIA", s1, ""); // Adiciona uma variável do tipo cadeia sem valor
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_cadeia("CADEIA", s1, "");
+                adicionar_variavel_cadeia("CADEIA", s1, ""); // Adiciona uma variável do tipo cadeia sem valor
             }
             else {
                 printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
@@ -506,11 +505,11 @@ declaracao_numero:
     IDENTIFICADOR '=' expressao_numero { 
         char* s1 = remove_espacos($1.string);
         if (verifica_variavel_existe_pilha(s1) == NULL) {
-            adicionar_variavel_numero("NUMERO", s1, $3.number);
+            adicionar_variavel_numero("NUMERO", s1, $3.number); // Adiciona uma variável do tipo número
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_numero("NUMERO", s1, $3.number);
+                adicionar_variavel_numero("NUMERO", s1, $3.number); // Adiciona uma variável do tipo número
             }
             else {
                 printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
@@ -520,11 +519,11 @@ declaracao_numero:
     | IDENTIFICADOR {
         char* s1 = remove_espacos($1.string); 
         if (verifica_variavel_existe_pilha(remove_espacos(s1)) == NULL) {
-            adicionar_variavel_numero("NUMERO", s1, 0);
+            adicionar_variavel_numero("NUMERO", s1, 0); // Adiciona uma variável do tipo número com valor 0
         }
         else {
             if (verifica_variavel_existe_escopo_atual(s1) == NULL){
-                adicionar_variavel_numero("NUMERO", s1, 0);
+                adicionar_variavel_numero("NUMERO", s1, 0); // Adiciona uma variável do tipo número com valor 0
             }
             else {
                 printf("[%d] Erro: variável '%s' já declarada no escopo\n", linha_indice, s1);
@@ -543,7 +542,6 @@ expressao_numero:
                 $$.number = busca_valor_variavel_numero(s1); 
             }
             else{
-                //$$.string = busca_valor_variavel_numero(s1); 
                 printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
@@ -559,8 +557,6 @@ expressao_numero:
                 $$.number  = $1.number + valor_variavel_s3; 
             }
             else{
-                //char* valor_variavel_s3 = busca_valor_variavel_numero(s3);
-                //$$.string  = $1.number + valor_variavel_s3; 
                 printf("[%d] Erro: tipos não compatíveis\n", linha_indice);
             }
         }
@@ -718,6 +714,6 @@ void yyerror(const char *s) {
 }
 
 int main(void) {
-    inicializar_pilha_de_escopos();
+    inicializar_pilha_de_escopos(); // Inicializa a pilha de escopos
     return yyparse();
 }

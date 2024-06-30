@@ -6,7 +6,7 @@
 [14] 45
 [18] "Compiladores eh massa"
 [19] Erro: tipos não compatíveis
-[21] "Bloco2"
+[21] "Bloco 2"
 [22] 45
 [24] 55
 [27] Erro: variável não declarada
